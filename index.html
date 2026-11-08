@@ -347,7 +347,7 @@ function templateRPH(r) {
 /* ---------- toast & modal ---------- */
 function toast(msg, err) { const d = document.createElement("div"); d.textContent = msg; if (err) d.className = "err"; $("#toast").append(d); setTimeout(() => d.remove(), err ? 6500 : 3200); }
 function modal(title, body, foot = "", wide, locked) {
-  $("#modal").innerHTML = `<div class="ov" ${locked ? "" : `data-act="ovclose"`}><div class="modal ${wide ? "wide" : ""}" onclick="event.stopPropagation()">
+  $("#modal").innerHTML = `<div class="ov" ${locked ? "" : `data-act="ovclose"`}><div class="modal ${wide ? "wide" : ""}">
     <div class="mh"><h3>${title}</h3>${locked ? "" : `<button class="x-btn" data-act="mclose" aria-label="Tutup">×</button>`}</div>
     <div class="mb">${body}</div>${foot ? `<div class="mf">${foot}</div>` : ""}</div></div>`;
   document.body.classList.add("modal-open");
