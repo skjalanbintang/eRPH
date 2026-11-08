@@ -1,0 +1,1211 @@
+<!doctype html>
+<html lang="ms">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>eRPH SKJB</title>
+<meta name="theme-color" content="#065f46">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --em-900:#053b2e; --em-800:#065f46; --em-700:#047857; --em-600:#059669; --em-100:#d1fae5; --em-50:#ecfdf5;
+  --cream:#fbf7ee; --cream-2:#f4eedf; --card:#ffffff; --ink:#1c2a24; --muted:#66756e; --line:#e6e0d0;
+  --gold:#b7791f; --gold-bg:#fdf3dc; --red:#b42318; --red-bg:#fdecea; --blue:#1d4ed8; --blue-bg:#e8efff;
+  --grey:#55625c; --grey-bg:#eef0ec; --green:#067647; --green-bg:#dcfae6;
+  --r:14px; --sh:0 1px 2px rgba(20,40,30,.06),0 4px 14px rgba(20,40,30,.06);
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--cream);color:var(--ink);font-family:"Plus Jakarta Sans",system-ui,-apple-system,"Segoe UI",sans-serif;font-size:14.5px;line-height:1.5}
+button,input,select,textarea{font:inherit;color:inherit}
+a{color:var(--em-700)}
+h1,h2,h3{margin:0;line-height:1.25}
+.hidden{display:none!important}
+
+/* shell */
+.shell{display:grid;grid-template-columns:260px 1fr;min-height:100vh;background:linear-gradient(90deg,var(--em-900) 260px,transparent 260px)}
+.side{background:var(--em-900);color:#e9f5ef;padding:18px 14px;position:sticky;top:0;height:100vh;overflow:auto;display:flex;flex-direction:column;gap:14px}
+.brand{display:flex;gap:10px;align-items:center;padding:4px 6px}
+.brand .logo{width:38px;height:38px;border-radius:11px;background:linear-gradient(135deg,#34d399,#047857);display:grid;place-items:center;font-weight:800;color:#fff;font-size:15px;box-shadow:inset 0 0 0 2px rgba(255,255,255,.25)}
+.brand b{display:block;font-size:16px;letter-spacing:.2px}
+.brand small{color:#a7d7c2;font-size:11.5px}
+.clock{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:10px 12px}
+.clock .t{font-size:20px;font-weight:800;font-variant-numeric:tabular-nums;letter-spacing:.5px}
+.clock small{display:block;color:#a7d7c2;font-size:11.5px}
+.nav{display:flex;flex-direction:column;gap:2px}
+.nav .grp{font-size:10.5px;text-transform:uppercase;letter-spacing:1.2px;color:#7fb9a1;margin:10px 8px 4px}
+.nav a{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:10px;color:#d8efe5;text-decoration:none;font-weight:500}
+.nav a:hover{background:rgba(255,255,255,.07)}
+.nav a.on{background:#f4eedf;color:var(--em-900);font-weight:700}
+.nav a .ic{width:18px;text-align:center;opacity:.9}
+.nav a .bdg{margin-left:auto;background:#f59e0b;color:#1c1300;border-radius:99px;font-size:11px;font-weight:800;padding:1px 7px}
+.me{margin-top:auto;background:rgba(255,255,255,.06);border-radius:12px;padding:10px 12px;font-size:13px}
+.me b{display:block}
+.me small{color:#a7d7c2}
+.me button{margin-top:8px;background:none;border:1px solid rgba(255,255,255,.25);color:#fff;border-radius:8px;padding:5px 10px;cursor:pointer;font-size:12.5px}
+main{min-width:0}
+.top{display:flex;align-items:center;gap:12px;padding:14px 26px;border-bottom:1px solid var(--line);background:rgba(251,247,238,.9);backdrop-filter:blur(6px);position:sticky;top:0;z-index:5}
+.top h2{font-size:17px}
+.top .sp{flex:1}
+.menu-btn{display:none;border:1px solid var(--line);background:#fff;border-radius:9px;padding:6px 10px;cursor:pointer}
+.mode{font-size:11.5px;font-weight:700;padding:3px 9px;border-radius:99px;background:var(--gold-bg);color:var(--gold)}
+.mode.live{background:var(--green-bg);color:var(--green)}
+#view{padding:22px 26px 60px;max-width:1240px}
+
+/* components */
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--sh);padding:18px}
+.card h3{font-size:15px;margin-bottom:12px;display:flex;align-items:center;gap:8px}
+.grid{display:grid;gap:16px}
+.g2{grid-template-columns:repeat(2,minmax(0,1fr))}
+.g3{grid-template-columns:repeat(3,minmax(0,1fr))}
+.g4{grid-template-columns:repeat(4,minmax(0,1fr))}
+.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.row.between{justify-content:space-between}
+.mt{margin-top:16px}.mt2{margin-top:24px}
+.muted{color:var(--muted)}
+.small{font-size:12.5px}
+.btn{display:inline-flex;align-items:center;gap:7px;border:1px solid var(--line);background:#fff;border-radius:10px;padding:8px 14px;font-weight:600;cursor:pointer;text-decoration:none;color:var(--ink);white-space:nowrap}
+.btn:hover{border-color:#cfc6ae}
+.btn.pri{background:var(--em-700);border-color:var(--em-700);color:#fff}
+.btn.pri:hover{background:var(--em-800)}
+.btn.ai{background:linear-gradient(135deg,#047857,#0d9488 60%,#b7791f);border:none;color:#fff}
+.btn.warn{background:var(--red);border-color:var(--red);color:#fff}
+.btn.ok{background:var(--green);border-color:var(--green);color:#fff}
+.btn.sm{padding:5px 10px;font-size:12.5px;border-radius:8px}
+.btn.ghost{background:transparent}
+.btn:disabled{opacity:.55;cursor:not-allowed}
+.chip{display:inline-flex;align-items:center;gap:5px;font-size:11.5px;font-weight:700;padding:2px 9px;border-radius:99px;white-space:nowrap}
+.c-grey{background:var(--grey-bg);color:var(--grey)}.c-blue{background:var(--blue-bg);color:var(--blue)}.c-red{background:var(--red-bg);color:var(--red)}.c-green{background:var(--green-bg);color:var(--green)}.c-gold{background:var(--gold-bg);color:var(--gold)}
+label.f{display:block;font-size:12.5px;font-weight:600;color:#3d4a44;margin-bottom:5px}
+.in{width:100%;border:1px solid #ddd5c2;background:#fffdf8;border-radius:10px;padding:9px 11px;outline:none}
+.in:focus{border-color:var(--em-600);box-shadow:0 0 0 3px rgba(5,150,105,.15);background:#fff}
+textarea.in{resize:vertical;min-height:64px;white-space:pre-wrap}
+.in[readonly],.in:disabled{background:#f6f3ea;color:#4b5852}
+.fld{margin-bottom:12px}
+.hero{background:linear-gradient(120deg,var(--em-800),var(--em-600) 70%,#0f766e);color:#fff;border-radius:18px;padding:22px 24px;position:relative;overflow:hidden}
+.hero:after{content:"";position:absolute;right:-60px;top:-60px;width:220px;height:220px;border-radius:50%;background:rgba(255,255,255,.07)}
+.hero h1{font-size:23px}
+.hero p{margin:6px 0 0;color:#d1fae5}
+.stat{background:#fff;border:1px solid var(--line);border-radius:var(--r);padding:14px 16px}
+.stat b{font-size:26px;display:block;font-variant-numeric:tabular-nums}
+.stat span{font-size:12.5px;color:var(--muted)}
+.list{display:flex;flex-direction:column;gap:8px}
+.item{display:flex;gap:12px;align-items:center;border:1px solid var(--line);border-radius:12px;padding:10px 12px;background:#fffdf8}
+.item .tm{font-size:11.5px;font-weight:700;background:var(--cream-2);border-radius:7px;padding:3px 7px;white-space:nowrap;font-variant-numeric:tabular-nums}
+.item .grow{flex:1;min-width:0}
+.item .grow b{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.empty{padding:22px;text-align:center;color:var(--muted);border:1px dashed var(--line);border-radius:12px;background:#fffdf8}
+.deadline{display:flex;gap:14px;align-items:center;border-radius:14px;padding:14px 16px;background:var(--gold-bg);border:1px solid #f1d9a6}
+.deadline.late{background:var(--red-bg);border-color:#f5c2bc}
+.deadline.done{background:var(--green-bg);border-color:#a6e9c0}
+.deadline .big{font-size:20px;font-weight:800;font-variant-numeric:tabular-nums}
+.weeknav{display:flex;align-items:center;gap:8px}
+.weeknav b{min-width:210px;text-align:center}
+.day{margin-top:18px}
+.day h4{margin:0 0 8px;font-size:13.5px;display:flex;align-items:center;gap:8px}
+.day h4 .d{color:var(--muted);font-weight:500}
+.rcard{border:1px solid var(--line);border-left:4px solid var(--grey-bg);border-radius:12px;background:#fff;padding:10px 12px;display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+.rcard.s-dihantar{border-left-color:#93b4fb}.rcard.s-pembetulan{border-left-color:#f19a90}.rcard.s-disahkan{border-left-color:#6ce0a0}.rcard.s-draf{border-left-color:#cfd5cf}
+.rcard.kosong{border-style:dashed;background:#fffdf8}
+.rcard .grow{flex:1;min-width:180px}
+.rcard .grow b{display:block}
+.acts{display:flex;gap:6px;flex-wrap:wrap}
+table.t{width:100%;border-collapse:collapse;font-size:13.5px}
+table.t th{text-align:left;font-size:11.5px;text-transform:uppercase;letter-spacing:.6px;color:var(--muted);padding:9px 10px;border-bottom:1px solid var(--line);background:#fbf8f0}
+table.t td{padding:9px 10px;border-bottom:1px solid #f0ebde;vertical-align:top}
+table.t tr:hover td{background:#fffcf3}
+.tw{overflow:auto;border:1px solid var(--line);border-radius:12px;background:#fff}
+.bar{height:8px;background:#eee8d8;border-radius:99px;overflow:hidden;min-width:80px}
+.bar i{display:block;height:100%;background:var(--em-600)}
+.tt{display:grid;grid-template-columns:90px repeat(5,minmax(120px,1fr));gap:6px;min-width:760px}
+.tt .h{font-size:12px;font-weight:700;color:var(--muted);text-align:center;padding:6px}
+.tt .cell{background:#fff;border:1px solid var(--line);border-radius:10px;padding:8px;min-height:60px}
+.slot{background:var(--em-50);border:1px solid #bfe9d4;border-radius:8px;padding:6px 8px;margin-bottom:6px;font-size:12.5px;position:relative}
+.slot b{display:block;color:var(--em-800)}
+.slot .x{position:absolute;right:4px;top:2px;border:none;background:none;cursor:pointer;color:#9aa;font-size:14px}
+.section-t{font-size:13px;font-weight:800;color:var(--em-800);text-transform:uppercase;letter-spacing:.8px;margin:0 0 12px;display:flex;align-items:center;gap:8px}
+.lock{background:var(--blue-bg);color:var(--blue);border-radius:12px;padding:10px 14px;font-weight:600;font-size:13px}
+.log{border-left:3px solid var(--line);padding:2px 0 2px 12px;margin-bottom:10px}
+.log.pembetulan{border-color:#f19a90}.log.disahkan{border-color:#6ce0a0}.log.ulasan{border-color:#f1d9a6}
+.log b{font-size:13px}.log small{color:var(--muted)}
+.log p{margin:3px 0 0;white-space:pre-wrap}
+
+/* doc */
+.doc{background:#fff;border:1px solid var(--line);border-radius:12px;padding:22px}
+.doc .dh{text-align:center;border-bottom:2px solid var(--em-800);padding-bottom:10px;margin-bottom:12px}
+.doc .dh b{font-size:15px;letter-spacing:.5px}
+.doc table{width:100%;border-collapse:collapse;font-size:13px}
+.doc td,.doc th{border:1px solid #cfd8d3;padding:7px 9px;vertical-align:top;text-align:left}
+.doc th{background:#eef7f2;width:24%;font-weight:700;color:var(--em-900)}
+.doc .pre{white-space:pre-wrap}
+.stamp{display:inline-block;border:2px solid var(--green);color:var(--green);border-radius:8px;padding:4px 10px;font-weight:800;transform:rotate(-2deg)}
+
+/* modal + toast */
+.ov{position:fixed;inset:0;background:rgba(10,30,22,.45);display:grid;place-items:center;z-index:50;padding:16px}
+.modal{background:var(--cream);border-radius:18px;width:min(760px,100%);max-height:92vh;display:flex;flex-direction:column;box-shadow:0 20px 60px rgba(0,0,0,.25)}
+.modal.wide{width:min(980px,100%)}
+.modal .mh{padding:16px 20px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:10px}
+.modal .mh h3{font-size:16px;flex:1}
+.modal .mb{padding:18px 20px;overflow:auto}
+.modal .mf{padding:12px 20px;border-top:1px solid var(--line);display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap}
+.x-btn{border:none;background:none;font-size:22px;cursor:pointer;color:var(--muted);line-height:1}
+#toast{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);z-index:80;display:flex;flex-direction:column;gap:8px;align-items:center}
+#toast div{background:var(--em-900);color:#fff;padding:10px 16px;border-radius:12px;box-shadow:var(--sh);font-weight:600;font-size:13.5px;max-width:90vw}
+#toast div.err{background:var(--red)}
+.prog{height:10px;background:#e8e1cf;border-radius:99px;overflow:hidden}
+.prog i{display:block;height:100%;width:0;background:linear-gradient(90deg,#059669,#b7791f);transition:width .3s}
+.spin{width:16px;height:16px;border:2px solid rgba(255,255,255,.4);border-top-color:#fff;border-radius:50%;animation:sp 0.8s linear infinite;display:inline-block}
+@keyframes sp{to{transform:rotate(360deg)}}
+
+/* login */
+.login{min-height:100vh;display:grid;grid-template-columns:1.1fr 1fr}
+.login .l{background:radial-gradient(circle at 20% 20%,#0f766e,transparent 50%),linear-gradient(140deg,var(--em-900),var(--em-700));color:#fff;padding:48px;display:flex;flex-direction:column;justify-content:center}
+.login .l h1{font-size:38px;line-height:1.15}
+.login .l p{color:#cdeee0;max-width:460px}
+.login .feat{display:flex;gap:8px;flex-wrap:wrap;margin-top:18px}
+.login .feat span{background:rgba(255,255,255,.12);border-radius:99px;padding:5px 12px;font-size:12.5px;font-weight:600}
+.login .r{display:grid;place-items:center;padding:32px}
+.login .box{width:min(420px,100%)}
+.tabs{display:flex;background:var(--cream-2);border-radius:10px;padding:4px;margin-bottom:14px}
+.tabs button{flex:1;border:none;background:none;padding:7px;border-radius:8px;font-weight:600;cursor:pointer}
+.tabs button.on{background:#fff;box-shadow:var(--sh)}
+.demo-u{display:flex;gap:12px;align-items:center;width:100%;text-align:left;border:1px solid var(--line);background:#fff;border-radius:12px;padding:12px;cursor:pointer;margin-bottom:8px}
+.demo-u:hover{border-color:var(--em-600)}
+.av{width:36px;height:36px;border-radius:50%;background:var(--em-100);color:var(--em-800);display:grid;place-items:center;font-weight:800;flex:none}
+
+@media (max-width:900px){
+  .shell{grid-template-columns:1fr;background:none}
+  .side{position:fixed;left:0;top:0;bottom:0;width:270px;z-index:40;transform:translateX(-100%);transition:transform .2s}
+  .side.open{transform:none;box-shadow:0 0 40px rgba(0,0,0,.4)}
+  .menu-btn{display:inline-block}
+  .top{padding:12px 16px}
+  #view{padding:16px 16px 60px}
+  .g2,.g3{grid-template-columns:1fr}
+  .g4{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .login{grid-template-columns:1fr}
+  .login .l{padding:32px 20px}
+  .login .l h1{font-size:28px}
+  .weeknav b{min-width:0}
+}
+@media print{
+  body{background:#fff}
+  .side,.top,.noprint,#toast{display:none!important}
+  .shell{display:block}
+  #view{padding:0;max-width:none}
+  .doc{border:none;padding:0}
+  .ov{position:static;background:none;padding:0;display:block}
+  .modal{box-shadow:none;max-height:none;background:#fff}
+  .modal .mh,.modal .mf{display:none}
+  body.modal-open .shell{display:none}
+}
+
+.tm{font-size:11.5px;font-weight:700;background:var(--cream-2);border-radius:7px;padding:3px 7px;white-space:nowrap;font-variant-numeric:tabular-nums}
+.bell{position:relative;border:1px solid var(--line);background:#fff;border-radius:11px;width:40px;height:38px;font-size:17px;cursor:pointer}
+.bell .bdg{position:absolute;top:-6px;right:-6px;background:var(--red);color:#fff;border-radius:99px;font-size:10.5px;font-weight:800;padding:1px 6px;border:2px solid var(--cream)}
+.nitem{display:block;width:100%;text-align:left;border:1px solid var(--line);background:#fff;border-radius:12px;padding:10px 12px;cursor:pointer}
+.nitem b{display:block;font-size:13.5px}.nitem span{display:block;font-size:13px;color:#3d4a44;margin-top:2px}.nitem small{color:var(--muted);font-size:11.5px}
+.nitem.unread{border-left:4px solid var(--em-600);background:var(--em-50)}
+.me button+button{margin-left:4px}
+</style>
+</head>
+<body>
+<div id="app"><div style="display:grid;place-items:center;min-height:100vh;color:#66756e">Memuatkan eRPH…</div></div>
+<div id="modal"></div>
+<div id="toast"></div>
+<script type="module">
+/* =====================================================================
+   eRPH SKJB — Sistem Rancangan Pengajaran Harian (Supabase)
+   ===================================================================== */
+import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/+esm";
+
+const SUPABASE_URL = "https://smeykkqkbxpivipsmuck.supabase.co";
+const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNtZXlra3FrYnhwaXZpcHNtdWNrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTQxNjQxMzQsImV4cCI6MjEwOTc0MDEzNH0.REvRUMTaEXzi2hU0ohc3JiaVEMzX3dHsiSLCSsM54EI";
+const VAPID_PUBLIC = "BN00zWf5WXnVugKPJ1AGh6FenhT_2rEYH9NvHw4Sw9pmzpOdSpYlLa5mEqcKnaCpscjL-FPQjwGAh21xz8h1ljo";
+const sb = createClient(SUPABASE_URL, SUPABASE_KEY);
+
+/* ---------- utiliti ---------- */
+const $ = (s, el = document) => el.querySelector(s);
+const $$ = (s, el = document) => [...el.querySelectorAll(s)];
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const pad = n => String(n).padStart(2, "0");
+const iso = d => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+const parse = s => { const [y, m, d] = String(s).slice(0, 10).split("-").map(Number); return new Date(y, m - 1, d); };
+const addDays = (s, n) => { const d = parse(s); d.setDate(d.getDate() + n); return iso(d); };
+const mondayOf = s => { const d = parse(s); d.setDate(d.getDate() - ((d.getDay() + 6) % 7)); return iso(d); };
+const today = () => iso(new Date());
+const HARI = ["Ahad", "Isnin", "Selasa", "Rabu", "Khamis", "Jumaat", "Sabtu"];
+const BULAN = ["Jan", "Feb", "Mac", "Apr", "Mei", "Jun", "Jul", "Ogos", "Sep", "Okt", "Nov", "Dis"];
+const fmtT = s => { const d = parse(s); return `${HARI[d.getDay()]}, ${d.getDate()} ${BULAN[d.getMonth()]} ${d.getFullYear()}`; };
+const fmtTs = s => { const d = parse(s); return `${d.getDate()} ${BULAN[d.getMonth()]}`; };
+const fmtDT = v => { if (!v) return "-"; const d = new Date(v); return `${d.getDate()} ${BULAN[d.getMonth()]} ${d.getFullYear()}, ${pad(d.getHours())}:${pad(d.getMinutes())}`; };
+const ago = v => { const m = Math.round((Date.now() - new Date(v)) / 6e4); return m < 1 ? "baru sahaja" : m < 60 ? `${m} min lalu` : m < 1440 ? `${Math.round(m / 60)} jam lalu` : fmtDT(v); };
+const initials = n => (n || "?").replace(/^(cikgu|cg|pn|en|tn|dr)\.?\s+/i, "").split(/\s+/).slice(0, 2).map(w => w[0]).join("").toUpperCase();
+const clean = o => JSON.parse(JSON.stringify(o));
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+const tahunDari = k => (String(k).match(/(\d)/) || [])[1] || "";
+const minit = (a, b) => { if (!a || !b) return 60; const [h1, m1] = a.split(":").map(Number), [h2, m2] = b.split(":").map(Number); return Math.max(15, (h2 * 60 + m2) - (h1 * 60 + m1)); };
+const q = async p => { const { data, error } = await p; if (error) throw new Error(error.message); return data; };
+
+const SUBJEK = ["Bahasa Melayu", "Bahasa Inggeris", "Matematik", "Sains", "Pendidikan Islam", "Pendidikan Moral", "Sejarah", "Reka Bentuk dan Teknologi", "Teknologi Maklumat dan Komunikasi", "Pendidikan Jasmani", "Pendidikan Kesihatan", "Pendidikan Seni Visual", "Pendidikan Muzik", "Bahasa Arab", "Bahasa Cina", "Bahasa Iban", "Program Transisi Tahun Satu"];
+const ST = { draf: { t: "Draf", c: "c-grey" }, dihantar: { t: "Dihantar", c: "c-blue" }, pembetulan: { t: "Perlu Pembetulan", c: "c-red" }, disahkan: { t: "Disahkan", c: "c-green" } };
+const chip = s => `<span class="chip ${ST[s]?.c || "c-grey"}">${ST[s]?.t || s}</span>`;
+const F_KAND = [["tema", "Tema / Bidang", 1], ["tajuk", "Tajuk / Topik", 1], ["sk", "Standard Kandungan", 2], ["sp", "Standard Pembelajaran", 2], ["objektif", "Objektif Pembelajaran", 3], ["kriteria", "Kriteria Kejayaan", 2]];
+const F_AKT = [["induksi", "Set Induksi", 3], ["utama", "Aktiviti Utama", 7], ["penutup", "Penutup", 3]];
+const F_EL = [["bbm", "Bahan Bantu Mengajar (BBM)"], ["emk", "Elemen Merentas Kurikulum (EMK)"], ["nilai", "Nilai Murni"], ["pak21", "PAK-21"], ["kbat", "KBAT / i-Think"], ["pbd", "Pentaksiran (PBD)"], ["strategi", "Strategi / Kaedah"]];
+const AI_KEYS = ["tema", "tajuk", "sk", "sp", "objektif", "kriteria", "induksi", "utama", "penutup", "bbm", "emk", "nilai", "pak21", "kbat", "pbd", "strategi"];
+const COLS = ["tarikh", "isnin", "minggu", "mula", "tamat", "subjek", "kelas", ...AI_KEYS, "refleksi", "hadir", "jumlah", "ditangguhkan", "sebab", "status", "log", "guru_nama"];
+
+/* ---------- keadaan ---------- */
+const S = { user: null, profile: null, settings: null, isAdmin: false, aiReady: false, my: [], slots: [], ta: {}, notif: [], pending: 0 };
+
+/* ---------- minggu & tarikh akhir ---------- */
+const weekNo = s => Math.round((parse(mondayOf(s)) - parse(mondayOf(S.settings?.mula_minggu1 || "2026-01-12"))) / 6048e5) + 1;
+function deadlineFor(isnin) {
+  const o = S.ta[isnin];
+  if (o?.tarikh_akhir) return new Date(o.tarikh_akhir);
+  const off = Number(S.settings?.deadline_offset ?? -3);
+  const [h, m] = (S.settings?.deadline_jam || "23:59").split(":").map(Number);
+  const d = parse(addDays(isnin, off)); d.setHours(h, m, 0, 0); return d;
+}
+function countdown(d) {
+  const ms = d - new Date(), neg = ms < 0, a = Math.abs(ms);
+  const h = Math.floor(a / 36e5), dd = Math.floor(h / 24), hh = h % 24, mm = Math.floor((a % 36e5) / 6e4);
+  const t = dd ? `${dd} hari ${hh} jam` : `${hh} jam ${mm} minit`;
+  return neg ? `Lewat ${t}` : `${t} lagi`;
+}
+
+/* ---------- AI ---------- */
+function buildPrompt(r, opt = {}) {
+  const mins = minit(r.mula, r.tamat), bi = /inggeris|english/i.test(r.subjek);
+  return `Anda ialah guru cemerlang sekolah rendah di Malaysia yang pakar dalam KSSR (Semakan 2017) dan DSKP terkini.
+Bina SATU Rancangan Pengajaran Harian (RPH) yang lengkap, realistik dan boleh terus digunakan.
+
+MAKLUMAT:
+- Mata pelajaran: ${r.subjek}
+- Kelas: ${r.kelas} (Tahun ${tahunDari(r.kelas) || "?"})
+- Tarikh: ${r.tarikh ? fmtT(r.tarikh) : "-"} (Minggu persekolahan ke-${r.tarikh ? weekNo(r.tarikh) : "?"})
+- Tempoh: ${mins} minit
+- Tema/Tajuk diberi guru: ${r.tajuk || r.tema || "(tiada — cadangkan tajuk yang sesuai mengikut DSKP bagi minggu ini)"}
+- Standard Kandungan diberi: ${r.sk || "(tiada)"}
+- Standard Pembelajaran diberi: ${r.sp || "(tiada)"}
+- Catatan guru: ${opt.catatan || "(tiada)"}
+- Gaya: ${opt.gaya === "ringkas" ? "ringkas dan padat" : "terperinci"}
+
+PERATURAN:
+1. ${bi ? "Write ALL content in English (this is an English Language lesson)." : "Tulis dalam Bahasa Melayu baku."}
+2. Gunakan nombor SK/SP mengikut DSKP hanya jika anda pasti; jika tidak pasti, tulis huraian tanpa nombor.
+3. Objektif bermula "Pada akhir PdP, murid dapat:" diikuti 2–3 objektif bernombor yang boleh diukur.
+4. Aktiviti utama bernombor, berpusatkan murid, sesuai dengan tempoh ${mins} minit, dan menyebut teknik PAK-21 yang digunakan.
+5. Jika guru memberi SK/SP/tajuk, kekalkan maklumat itu.
+
+Pulangkan JSON SAHAJA (tiada teks lain) dengan kunci tepat berikut, semua nilai jenis string (guna \\n untuk baris baharu):
+{"tema":"","tajuk":"","sk":"","sp":"","objektif":"","kriteria":"","induksi":"","utama":"","penutup":"","bbm":"","emk":"","nilai":"","pak21":"","kbat":"","pbd":"","strategi":""}`;
+}
+function parseJSON(t) {
+  t = String(t || "").trim().replace(/^```(?:json)?/i, "").replace(/```$/, "").trim();
+  const o = JSON.parse(t.slice(t.indexOf("{"), t.lastIndexOf("}") + 1)), out = {};
+  for (const k of AI_KEYS) out[k] = Array.isArray(o[k]) ? o[k].join("\n") : String(o[k] ?? "");
+  return out;
+}
+const aiSource = () => S.aiReady ? "gemini" : "contoh";
+async function aiGenerate(r, opt) {
+  if (!S.aiReady) { await sleep(400); return templateRPH(r); }
+  const { data, error } = await sb.functions.invoke("jana-rph", { body: { prompt: buildPrompt(r, opt) } });
+  if (error) throw new Error(error.message);
+  if (data?.tiada_kunci) { S.aiReady = false; return templateRPH(r); }
+  if (data?.error) throw new Error(data.error);
+  return parseJSON(data.text);
+}
+function templateRPH(r) {
+  const tajuk = r.tajuk || `Topik ${r.subjek} minggu ${r.tarikh ? weekNo(r.tarikh) : ""}`.trim();
+  if (/inggeris|english/i.test(r.subjek)) return {
+    tema: r.tema || "World of Knowledge", tajuk, sk: r.sk || "2.1 Communicate simple information intelligibly", sp: r.sp || "2.1.1 Give simple personal information using basic statements",
+    objektif: "By the end of the lesson, pupils will be able to:\n1. Identify key vocabulary related to " + tajuk + ".\n2. Use at least 3 sentences correctly in pairs.",
+    kriteria: "Pupils can:\n1. Say at least 5 key words correctly.\n2. Build 3 correct sentences with a partner.",
+    induksi: "1. Teacher shows a picture related to the topic.\n2. Pupils guess the topic and share ideas.",
+    utama: "1. Teacher introduces key vocabulary using flashcards.\n2. Pupils repeat and practise pronunciation.\n3. Pupils work in pairs (Think-Pair-Share) to build sentences.\n4. Groups present their sentences (Gallery Walk).\n5. Teacher gives feedback and corrects errors.",
+    penutup: "1. Pupils recap the key words.\n2. Teacher praises effort and links to the next lesson.",
+    bbm: "Flashcards, pictures, worksheet", emk: "Language", nilai: "Cooperation, confidence", pak21: "Think-Pair-Share, Gallery Walk", kbat: "Applying", pbd: "Observation, oral presentation", strategi: "Pupil-centred, collaborative learning"
+  };
+  return {
+    tema: r.tema || "Tema semasa mengikut RPT", tajuk,
+    sk: r.sk || `Standard kandungan ${r.subjek} berkaitan ${tajuk}`, sp: r.sp || `Standard pembelajaran ${r.subjek} berkaitan ${tajuk}`,
+    objektif: `Pada akhir PdP, murid dapat:\n1. Menyatakan sekurang-kurangnya tiga perkara utama tentang ${tajuk}.\n2. Menyelesaikan tugasan berkumpulan berkaitan ${tajuk} dengan betul.`,
+    kriteria: `Murid berjaya jika dapat:\n1. Menyatakan 3 perkara utama tentang ${tajuk}.\n2. Melengkapkan lembaran kerja dengan sekurang-kurangnya 80% betul.`,
+    induksi: `1. Guru menayangkan gambar/video pendek berkaitan ${tajuk}.\n2. Murid memberi respons secara spontan dan guru mengaitkan dengan tajuk hari ini.`,
+    utama: `1. Guru menerangkan konsep asas ${tajuk} menggunakan bahan maujud dan contoh.\n2. Murid dibahagikan kepada kumpulan kecil dan berbincang menggunakan teknik Round Robin.\n3. Setiap kumpulan menghasilkan peta i-Think tentang ${tajuk}.\n4. Murid membentangkan hasil kerja secara Gallery Walk.\n5. Murid menjawab lembaran kerja secara individu; guru membimbing murid yang memerlukan.`,
+    penutup: `1. Murid membuat rumusan isi pelajaran bersama guru.\n2. Guru memberi pengukuhan dan menerapkan nilai murni.`,
+    bbm: "Buku teks, kad gambar, lembaran kerja, video", emk: "Kreativiti dan inovasi, Bahasa", nilai: "Kerjasama, bertanggungjawab, yakin diri",
+    pak21: "Round Robin, Gallery Walk", kbat: "Mengaplikasi, Menganalisis (Peta Pokok)", pbd: "Pemerhatian, lembaran kerja, pembentangan", strategi: "Pembelajaran koperatif, berpusatkan murid"
+  };
+}
+
+/* ---------- toast & modal ---------- */
+function toast(msg, err) { const d = document.createElement("div"); d.textContent = msg; if (err) d.className = "err"; $("#toast").append(d); setTimeout(() => d.remove(), err ? 6500 : 3200); }
+function modal(title, body, foot = "", wide, locked) {
+  $("#modal").innerHTML = `<div class="ov" ${locked ? "" : `data-act="ovclose"`}><div class="modal ${wide ? "wide" : ""}" onclick="event.stopPropagation()">
+    <div class="mh"><h3>${title}</h3>${locked ? "" : `<button class="x-btn" data-act="mclose" aria-label="Tutup">×</button>`}</div>
+    <div class="mb">${body}</div>${foot ? `<div class="mf">${foot}</div>` : ""}</div></div>`;
+  document.body.classList.add("modal-open");
+}
+function closeModal() { $("#modal").innerHTML = ""; document.body.classList.remove("modal-open"); }
+function confirmBox(msg) {
+  return new Promise(res => {
+    modal("Pengesahan", `<p style="margin:0">${msg}</p>`, `<button class="btn" id="cfN">Batal</button><button class="btn pri" id="cfY">Ya, teruskan</button>`);
+    $("#cfN").onclick = () => { closeModal(); res(false); }; $("#cfY").onclick = () => { closeModal(); res(true); };
+  });
+}
+
+/* ---------- permulaan & log masuk ---------- */
+async function boot() {
+  if ("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js").catch(() => { });
+  const { data: { session } } = await sb.auth.getSession();
+  if (session?.user) await afterLogin(session.user); else renderLogin();
+  sb.auth.onAuthStateChange((ev) => { if (ev === "SIGNED_OUT") { S.user = null; renderLogin(); } });
+}
+async function afterLogin(u) {
+  try {
+    S.user = { uid: u.id, email: u.email };
+    const [settings, profile, ai] = await Promise.all([
+      q(sb.from("settings").select("*").eq("id", 1).single()),
+      q(sb.from("profiles").select("*").eq("id", u.id).maybeSingle()),
+      sb.rpc("status_ai")
+    ]);
+    if (!profile) throw new Error("Profil tidak dijumpai. Hubungi pentadbir.");
+    if (!profile.aktif) { await sb.auth.signOut(); return toast("Akaun anda telah dinyahaktifkan. Hubungi pentadbir.", true); }
+    S.settings = settings; S.profile = profile; S.isAdmin = profile.peranan === "pentadbir"; S.aiReady = !!ai.data;
+    await refreshData();
+    renderShell(); route(); startNotif();
+    if (profile.tukar_kata_laluan) openPassword(true);
+  } catch (e) { console.error(e); renderLogin(); toast(e.message, true); }
+}
+async function refreshData() {
+  const [my, slots, ta] = await Promise.all([
+    q(sb.from("rph").select("*").eq("uid", S.user.uid)),
+    q(sb.from("slots").select("*").eq("uid", S.user.uid)),
+    q(sb.from("tarikh_akhir").select("*"))
+  ]);
+  S.my = my; S.slots = slots.sort((a, b) => a.hari - b.hari || a.mula.localeCompare(b.mula));
+  S.ta = Object.fromEntries(ta.map(t => [t.isnin, t]));
+  await refreshPending();
+}
+async function refreshPending() {
+  if (!S.isAdmin) return;
+  const { count } = await sb.from("rph").select("id", { count: "exact", head: true }).eq("status", "dihantar");
+  S.pending = count || 0; updateBadges();
+}
+
+function renderLogin() {
+  closeModal(); stopNotif();
+  $("#app").innerHTML = `<div class="login">
+   <div class="l">
+     <div class="brand" style="margin-bottom:26px"><div class="logo">eR</div><div><b>eRPH SKJB</b><small style="color:#a7d7c2">SK Jalan Bintang, Miri</small></div></div>
+     <h1>Rancangan Pengajaran Harian,<br>dibina pantas &amp; disemak teratur.</h1>
+     <p>Bina RPH dengan bantuan AI, jana RPH sehari sekali gus daripada jadual waktu, hantar kepada pentadbir, terima ulasan, pengesahan dan peringatan terus ke telefon.</p>
+     <div class="feat"><span>✦ Janaan AI</span><span>⚡ Jana RPH Sehari</span><span>📤 Penghantaran</span><span>✔ Semakan &amp; Ulasan</span><span>🔔 Notifikasi</span></div>
+   </div>
+   <div class="r"><form class="box" id="loginF" onsubmit="return false">
+     <h2 style="margin-bottom:4px">Log Masuk</h2>
+     <p class="small muted" style="margin-top:0">Gunakan e-mel dan kata laluan yang diberi oleh pentadbir.</p>
+     <div class="fld"><label class="f">E-mel</label><input class="in" id="lEmail" type="email" autocomplete="username" required></div>
+     <div class="fld"><label class="f">Kata laluan</label><input class="in" id="lPass" type="password" autocomplete="current-password" required></div>
+     <button class="btn pri" style="width:100%;justify-content:center;padding:11px" data-act="login" id="lBtn" type="submit">Log Masuk</button>
+     <p class="small muted">Lupa kata laluan? Hubungi pentadbir sekolah untuk set semula.</p>
+   </form></div></div>`;
+}
+
+/* ---------- rangka aplikasi ---------- */
+function navItems() {
+  const g = [["utama", "🏠", "Utama"], ["rph", "📘", "RPH Saya", "bRph"], ["jadual", "🗓️", "Jadual Waktu"]];
+  const a = [["semakan", "✅", "Semakan RPH", "bSem"], ["pantau", "📊", "Pemantauan"], ["tarikh", "⏰", "Tarikh Akhir"], ["guru", "👥", "Senarai Guru"], ["tetapan", "⚙️", "Tetapan"]];
+  const li = x => `<a href="#/${x[0]}" data-r="${x[0]}"><span class="ic">${x[1]}</span>${x[2]}${x[3] ? `<span class="bdg hidden" id="${x[3]}"></span>` : ""}</a>`;
+  return `<div class="grp">Guru</div>${g.map(li).join("")}${S.isAdmin ? `<div class="grp">Pentadbir</div>${a.map(li).join("")}` : ""}`;
+}
+function renderShell() {
+  $("#app").innerHTML = `<div class="shell">
+   <aside class="side" id="side">
+     <div class="brand"><div class="logo">eR</div><div><b>eRPH SKJB</b><small>${esc(S.settings.nama_sekolah)}</small></div></div>
+     <div class="clock"><div class="t" id="clk">--:--</div><small id="clkD"></small></div>
+     <nav class="nav">${navItems()}</nav>
+     <div class="me"><b>${esc(S.profile.nama)}</b><small>${esc(S.profile.jawatan || "")}${S.isAdmin ? " · Pentadbir" : ""}</small><br>
+       <button data-act="profil">Profil &amp; notifikasi</button> <button data-act="logout">Log keluar</button></div>
+   </aside>
+   <main><header class="top"><button class="menu-btn" data-act="menu">☰</button><h2 id="ttl"></h2><span class="sp"></span>
+     <button class="bell" data-act="notifPanel" aria-label="Notifikasi">🔔<span class="bdg hidden" id="bNotif"></span></button></header>
+   <div id="view"></div></main></div>`;
+  tick(); clearInterval(window._clk); window._clk = setInterval(tick, 15000);
+  updateBadges();
+}
+function tick() {
+  const n = new Date(), c = $("#clk"); if (!c) return;
+  c.textContent = `${pad(n.getHours())}:${pad(n.getMinutes())}`;
+  $("#clkD").textContent = `${fmtT(today())} · Minggu ${weekNo(today())}`;
+}
+function updateBadges() {
+  const set = (id, n) => { const e = $(id); if (e) { e.textContent = n > 99 ? "99+" : n; e.classList.toggle("hidden", !n); } };
+  set("#bRph", S.my.filter(x => x.status === "pembetulan").length);
+  set("#bSem", S.pending);
+  set("#bNotif", S.notif.filter(n => !n.dibaca).length);
+}
+const setTitle = t => { $("#ttl").textContent = t; document.title = `${t} · eRPH SKJB`; };
+
+/* ---------- notifikasi ---------- */
+let notifCh = null;
+async function startNotif() {
+  stopNotif();
+  S.notif = await q(sb.from("notifikasi").select("*").eq("user_id", S.user.uid).order("dicipta", { ascending: false }).limit(40));
+  updateBadges();
+  notifCh = sb.channel("notif-" + S.user.uid)
+    .on("postgres_changes", { event: "*", schema: "public", table: "notifikasi", filter: `user_id=eq.${S.user.uid}` }, async p => {
+      if (p.eventType === "DELETE") S.notif = S.notif.filter(n => n.id !== p.old.id);
+      else {
+        const n = p.new, fresh = !n.dibaca && (p.eventType === "INSERT" || S.notif.find(x => x.id === n.id)?.dicipta !== n.dicipta);
+        S.notif = [n, ...S.notif.filter(x => x.id !== n.id)].sort((a, b) => b.dicipta.localeCompare(a.dicipta));
+        if (fresh) {
+          toast(`🔔 ${n.tajuk}`);
+          if (/rph/i.test(n.kunci) || /^(sah|ulasan)/.test(n.kunci)) { S.my = await q(sb.from("rph").select("*").eq("uid", S.user.uid)); }
+          if (/^semak/.test(n.kunci)) refreshPending();
+        }
+      }
+      updateBadges();
+      if ($("#notifList")) drawNotifList();
+    }).subscribe();
+}
+function stopNotif() { if (notifCh) { sb.removeChannel(notifCh); notifCh = null; } }
+function drawNotifList() {
+  $("#notifList").innerHTML = S.notif.length ? S.notif.map(n => `<button class="nitem ${n.dibaca ? "" : "unread"}" data-act="bukaNotif" data-id="${n.id}">
+     <b>${esc(n.tajuk)}</b><span>${esc(n.mesej || "")}</span><small>${ago(n.dicipta)}</small></button>`).join("")
+    : `<div class="empty">Tiada notifikasi.</div>`;
+}
+const urlB64 = b => { const p = "=".repeat((4 - b.length % 4) % 4), s = atob((b + p).replace(/-/g, "+").replace(/_/g, "/")); return Uint8Array.from([...s].map(c => c.charCodeAt(0))); };
+async function pushStatus() {
+  if (!("serviceWorker" in navigator) || !("PushManager" in window)) return "tiada";
+  const reg = await navigator.serviceWorker.getRegistration(); const sub = await reg?.pushManager.getSubscription();
+  if (Notification.permission === "denied") return "disekat";
+  return sub ? "aktif" : "tidak";
+}
+async function enablePush() {
+  if (!("serviceWorker" in navigator) || !("PushManager" in window))
+    throw new Error(/iphone|ipad/i.test(navigator.userAgent) ? "Di iPhone/iPad: tekan Kongsi → Tambah ke Skrin Utama, buka eRPH dari ikon itu, kemudian hidupkan notifikasi." : "Pelayar ini tidak menyokong notifikasi push.");
+  const perm = await Notification.requestPermission();
+  if (perm !== "granted") throw new Error("Kebenaran notifikasi tidak diberi. Benarkan di tetapan pelayar.");
+  await navigator.serviceWorker.register("sw.js"); const reg = await navigator.serviceWorker.ready;
+  const sub = (await reg.pushManager.getSubscription()) || await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: urlB64(VAPID_PUBLIC) });
+  const j = sub.toJSON();
+  await q(sb.from("push_subs").upsert({ user_id: S.user.uid, endpoint: j.endpoint, sub: j }, { onConflict: "endpoint" }));
+}
+
+/* ---------- router ---------- */
+async function route() {
+  if (!S.user || !$("#view")) return;
+  const [r, a, b] = (location.hash.replace(/^#\/?/, "") || "utama").split("/");
+  $$(".nav a").forEach(x => x.classList.toggle("on", x.dataset.r === r));
+  $("#side")?.classList.remove("open"); if (!S.forcePw) closeModal();
+  const v = $("#view"); v.innerHTML = `<div class="muted">Memuatkan…</div>`;
+  if (["semakan", "pantau", "tarikh", "guru", "tetapan"].includes(r) && !S.isAdmin) return location.hash = "#/utama";
+  try {
+    const V = { utama: vUtama, rph: vRph, jadual: vJadual, edit: vEdit, lihat: vLihat, semakan: vSemakan, pantau: vPantau, tarikh: vTarikh, guru: vGuru, tetapan: vTetapan };
+    await (V[r] || vUtama)(a, b);
+  } catch (e) { console.error(e); v.innerHTML = `<div class="card"><b>Ralat:</b> ${esc(e.message)}</div>`; }
+  window.scrollTo(0, 0);
+}
+window.addEventListener("hashchange", route);
+
+/* ---------- padanan slot & RPH ---------- */
+const slotsFor = d => S.slots.filter(s => s.hari === parse(d).getDay());
+const findRph = (d, s) => S.my.find(r => r.tarikh === d && r.mula === s.mula && r.subjek === s.subjek && r.kelas === s.kelas);
+function deadlineBox(isnin, list) {
+  const dl = deadlineFor(isnin), total = list.length, sent = list.filter(r => r.status !== "draf").length;
+  const done = total > 0 && sent === total, late = !done && new Date() > dl && (total > 0 || S.slots.length > 0);
+  const note = S.ta[isnin]?.catatan;
+  return `<div class="deadline ${done ? "done" : late ? "late" : ""}"><div style="font-size:26px">${done ? "✅" : late ? "⚠️" : "⏰"}</div>
+   <div style="flex:1"><div class="small muted" style="font-weight:700">TARIKH AKHIR HANTAR RPH MINGGU ${weekNo(isnin)}</div>
+   <div class="big">${fmtDT(dl)}</div><div class="small">${done ? "Semua RPH minggu ini telah dihantar." : countdown(dl)} · ${sent}/${total} dihantar${note ? ` · <i>${esc(note)}</i>` : ""}</div></div></div>`;
+}
+
+/* ---------- UTAMA ---------- */
+async function vUtama() {
+  setTitle("Utama");
+  const t = today(), mon = mondayOf(t), nmon = addDays(mon, 7), h = new Date().getHours();
+  const salam = h < 12 ? "Selamat pagi" : h < 15 ? "Selamat tengah hari" : h < 19 ? "Selamat petang" : "Selamat malam";
+  const thisW = S.my.filter(r => r.isnin === mon), nextW = S.my.filter(r => r.isnin === nmon), todaySlots = slotsFor(t);
+  const tertunggak = [];
+  for (let i = 0; i < 5; i++) { const d = addDays(mon, i); if (d > t) break; slotsFor(d).forEach(s => { if (!findRph(d, s)) tertunggak.push({ d, s }); }); }
+  const nextNeed = []; for (let i = 0; i < 5; i++) { const d = addDays(nmon, i); slotsFor(d).forEach(s => { if (!findRph(d, s)) nextNeed.push({ d, s }); }); }
+  const pemb = S.my.filter(r => r.status === "pembetulan");
+  const reflek = S.my.filter(r => r.tarikh < t && r.tarikh >= addDays(mon, -7) && !r.refleksi && !r.ditangguhkan).sort((a, b) => a.tarikh.localeCompare(b.tarikh));
+  const cnt = s => S.my.filter(r => r.status === s).length;
+  const slotRow = (d, s, showDate) => { const r = findRph(d, s); return `<div class="item"><span class="tm">${showDate ? fmtTs(d) + " · " : ""}${s.mula}</span><div class="grow"><b>${esc(s.subjek)}</b><span class="small muted">${esc(s.kelas)}${r?.tajuk ? " · " + esc(r.tajuk) : ""}</span></div>${r ? `${chip(r.status)}<a class="btn sm" href="#/lihat/${r.id}">Lihat</a>` : `<a class="btn sm pri" href="#/edit/baru?t=${d}&s=${s.id}">+ Bina</a>`}</div>`; };
+  const ps = await pushStatus();
+  $("#view").innerHTML = `
+   <div class="hero"><span class="chip" style="background:rgba(255,255,255,.15);color:#fff">${esc(S.settings.nama_sekolah)}</span>
+     <h1 class="mt">${salam}, ${esc(S.profile.nama)} 👋</h1><p>${fmtT(t)} · Minggu ${weekNo(t)}</p></div>
+   ${ps === "tidak" ? `<div class="deadline mt" style="background:var(--em-50);border-color:#bfe9d4"><div style="font-size:24px">🔔</div><div style="flex:1"><b>Hidupkan notifikasi telefon</b><div class="small muted">Terima peringatan tarikh akhir, ulasan dan pengesahan RPH terus ke telefon/komputer.</div></div><button class="btn pri" data-act="pushOn">Hidupkan</button></div>` : ""}
+   <div class="grid g4 mt">
+     <div class="stat"><b>${S.my.length}</b><span>Jumlah RPH dibina</span></div>
+     <div class="stat"><b style="color:var(--blue)">${cnt("dihantar")}</b><span>Menunggu semakan</span></div>
+     <div class="stat"><b style="color:var(--red)">${cnt("pembetulan")}</b><span>Perlu pembetulan</span></div>
+     <div class="stat"><b style="color:var(--green)">${cnt("disahkan")}</b><span>Disahkan</span></div>
+   </div>
+   <div class="grid g2 mt">${deadlineBox(mon, thisW)}${deadlineBox(nmon, nextW)}</div>
+   <div class="row mt"><a class="btn pri" href="#/edit/baru">＋ Bina RPH Baru</a><button class="btn ai" data-act="janaSehari" data-d="${t}">✦ Jana RPH Sehari (AI)</button><a class="btn" href="#/rph">📘 RPH Minggu Ini</a><a class="btn" href="#/jadual">🗓️ Jadual Waktu</a></div>
+   <div class="grid g2 mt">
+     <div class="card"><h3>📅 Kelas Hari Ini <span class="chip c-green">${todaySlots.length} slot</span></h3>
+       <div class="list">${todaySlots.length ? todaySlots.map(s => slotRow(t, s)).join("") : `<div class="empty">${S.slots.length ? "Tiada kelas hari ini." : `Jadual waktu belum diisi. <a href="#/jadual">Isi jadual</a> supaya RPH boleh dijana automatik dan peringatan berfungsi.`}</div>`}</div></div>
+     <div class="card"><h3>⚠️ RPH Tertunggak <span class="chip c-red">${tertunggak.length}</span></h3>
+       <div class="list" style="max-height:290px;overflow:auto">${tertunggak.length ? tertunggak.map(x => slotRow(x.d, x.s, 1)).join("") : `<div class="empty">✔ Tiada RPH tertunggak minggu ini.</div>`}</div></div>
+     <div class="card"><h3>✏️ Perlu Pembetulan <span class="chip c-red">${pemb.length}</span></h3>
+       <div class="list">${pemb.length ? pemb.map(r => { const l = (r.log || []).filter(x => x.tindakan === "pembetulan").at(-1); return `<div class="item"><span class="tm">${fmtTs(r.tarikh)}</span><div class="grow"><b>${esc(r.subjek)} · ${esc(r.kelas)}</b><span class="small" style="color:var(--red)">“${esc(l?.teks || "")}” — ${esc(l?.nama || "")}</span></div><a class="btn sm pri" href="#/edit/${r.id}">Betulkan</a></div>`; }).join("") : `<div class="empty">Tiada ulasan pembetulan. Terbaik!</div>`}</div></div>
+     <div class="card"><h3>🗓️ Minggu Hadapan <span class="chip c-gold">${nextNeed.length} belum dibina</span></h3>
+       ${nextNeed.length ? `<p class="small muted" style="margin-top:0">RPH minggu ${weekNo(nmon)} perlu dihantar sebelum <b>${fmtDT(deadlineFor(nmon))}</b>.</p><div class="row">${[0, 1, 2, 3, 4].map(i => addDays(nmon, i)).filter(d => slotsFor(d).some(s => !findRph(d, s))).map(d => `<button class="btn sm ai" data-act="janaSehari" data-d="${d}">✦ ${HARI[parse(d).getDay()]} ${fmtTs(d)}</button>`).join("")}</div>` : `<div class="empty">${S.slots.length ? "Semua RPH minggu hadapan sudah dibina." : "Isi jadual waktu dahulu."}</div>`}
+       <h3 class="mt">💬 Refleksi Perlu Diisi <span class="chip c-gold">${reflek.length}</span></h3>
+       <div class="list" style="max-height:200px;overflow:auto">${reflek.length ? reflek.map(r => `<div class="item"><span class="tm">${fmtTs(r.tarikh)}</span><div class="grow"><b>${esc(r.subjek)} · ${esc(r.kelas)}</b></div><button class="btn sm" data-act="refleksi" data-id="${r.id}">Isi refleksi</button></div>`).join("") : `<div class="empty">Semua refleksi telah diisi.</div>`}</div></div>
+   </div>`;
+}
+
+/* ---------- RPH SAYA ---------- */
+async function vRph(isnin) {
+  setTitle("RPH Saya");
+  const mon = isnin && /^\d{4}-\d{2}-\d{2}$/.test(isnin) ? mondayOf(isnin) : mondayOf(today());
+  const list = S.my.filter(r => r.isnin === mon), draf = list.filter(r => r.status === "draf" || r.status === "pembetulan");
+  const tm = s => `<span class="tm">${s.mula}–${s.tamat}</span>`;
+  let html = `<div class="row between"><div class="weeknav"><a class="btn sm" href="#/rph/${addDays(mon, -7)}">‹</a><b>Minggu ${weekNo(mon)} · ${fmtTs(mon)} – ${fmtTs(addDays(mon, 4))}</b><a class="btn sm" href="#/rph/${addDays(mon, 7)}">›</a><a class="btn sm ghost" href="#/rph">Minggu ini</a></div>
+    <div class="row"><a class="btn" href="#/edit/baru?t=${mon <= today() && addDays(mon, 4) >= today() ? today() : mon}">＋ RPH Baru</a><button class="btn pri" data-act="hantarSemua" data-w="${mon}" ${draf.length ? "" : "disabled"}>📤 Hantar Semua (${draf.length})</button></div></div>
+    <div class="mt">${deadlineBox(mon, list)}</div>`;
+  for (let i = 0; i < 5; i++) {
+    const d = addDays(mon, i), sl = slotsFor(d), rs = list.filter(r => r.tarikh === d);
+    const extra = rs.filter(r => !sl.some(s => findRph(d, s)?.id === r.id)), kosong = sl.filter(s => !findRph(d, s)).length;
+    html += `<div class="day"><h4>${HARI[parse(d).getDay()]} <span class="d">${fmtT(d).split(", ")[1]}</span>${d === today() ? `<span class="chip c-green">Hari ini</span>` : ""}
+      <span style="flex:1"></span>${kosong ? `<button class="btn sm ai" data-act="janaSehari" data-d="${d}">✦ Jana RPH Sehari (${kosong})</button>` : ""}</h4><div class="list">`;
+    sl.forEach(s => { const r = findRph(d, s); html += r ? rCard(r) : `<div class="rcard kosong">${tm(s)}<div class="grow"><b>${esc(s.subjek)}</b><span class="small muted">${esc(s.kelas)} · belum dibina</span></div><div class="acts"><button class="btn sm ai" data-act="janaSatu" data-d="${d}" data-s="${s.id}">✦ Jana AI</button><a class="btn sm" href="#/edit/baru?t=${d}&s=${s.id}">+ Bina manual</a></div></div>`; });
+    extra.forEach(r => html += rCard(r));
+    if (!sl.length && !extra.length) html += `<div class="empty small">Tiada slot / RPH.</div>`;
+    html += `</div></div>`;
+  }
+  if (!S.slots.length) html += `<div class="card mt"><b>Tip:</b> Isi <a href="#/jadual">Jadual Waktu</a> dahulu — slot kelas akan muncul di sini dan boleh dijana dengan AI sekali gus.</div>`;
+  $("#view").innerHTML = html;
+}
+function rCard(r) {
+  const can = r.status === "draf" || r.status === "pembetulan";
+  const last = (r.log || []).filter(x => x.tindakan !== "dihantar" && x.tindakan !== "tarik").at(-1);
+  return `<div class="rcard s-${r.status}"><span class="tm">${r.mula || ""}–${r.tamat || ""}</span>
+   <div class="grow"><b>${esc(r.subjek)} · ${esc(r.kelas)}</b><span class="small muted">${esc(r.tajuk || "(tiada tajuk)")}</span>
+   ${last?.teks ? `<div class="small" style="color:${last.tindakan === "pembetulan" ? "var(--red)" : "var(--muted)"}">💬 ${esc(last.teks)} — ${esc(last.nama)}</div>` : ""}</div>
+   <div class="row" style="gap:6px">${chip(r.status)}${r.lewat ? `<span class="chip c-gold">Lewat</span>` : ""}</div>
+   <div class="acts"><a class="btn sm" href="#/lihat/${r.id}">Lihat</a>${can ? `<a class="btn sm" href="#/edit/${r.id}">Sunting</a><button class="btn sm pri" data-act="hantar" data-id="${r.id}">Hantar</button>` : ""}
+   ${r.status === "dihantar" ? `<button class="btn sm" data-act="tarik" data-id="${r.id}">Tarik balik</button>` : ""}
+   <button class="btn sm" data-act="salin" data-id="${r.id}" title="Salin ke tarikh lain">⧉</button>${r.status === "draf" ? `<button class="btn sm" data-act="padam" data-id="${r.id}" title="Padam">🗑</button>` : ""}</div></div>`;
+}
+
+/* ---------- BORANG RPH ---------- */
+let ED = null, AUTO_AI = false;
+async function vEdit(id) {
+  const qs = new URLSearchParams((location.hash.split("?")[1]) || "");
+  if (id && id.startsWith("baru")) {
+    const t = qs.get("t") || today(), s = S.slots.find(x => x.id === qs.get("s"));
+    ED = { tarikh: t, mula: s?.mula || "", tamat: s?.tamat || "", subjek: s?.subjek || "", kelas: s?.kelas || "", status: "draf", log: [] };
+  } else {
+    ED = S.my.find(r => r.id === id) || await q(sb.from("rph").select("*").eq("id", id).maybeSingle());
+    if (!ED) return $("#view").innerHTML = `<div class="empty">RPH tidak dijumpai.</div>`;
+    ED = clean(ED);
+  }
+  setTitle(ED.id ? "Sunting RPH" : "RPH Baru");
+  const ro = !(ED.status === "draf" || ED.status === "pembetulan") || (ED.uid && ED.uid !== S.user.uid);
+  const inp = (k, lbl, rows) => `<div class="fld"><label class="f">${lbl}</label>${rows > 1 ? `<textarea class="in" name="${k}" rows="${rows}" ${ro ? "readonly" : ""}>${esc(ED[k])}</textarea>` : `<input class="in" name="${k}" value="${esc(ED[k])}" ${ro ? "readonly" : ""}>`}</div>`;
+  const lastPemb = (ED.log || []).filter(x => x.tindakan === "pembetulan").at(-1);
+  $("#view").innerHTML = `
+  <div class="row between noprint"><a class="btn ghost" href="#/rph/${mondayOf(ED.tarikh)}">← Kembali</a>
+   <div class="row">${ro ? "" : `<button class="btn" data-act="salinTerdahulu">⧉ Salin RPH terdahulu</button><button class="btn ai" data-act="janaForm">✦ Jana dengan AI</button><button class="btn" data-act="simpan" data-s="draf">💾 Simpan Draf</button><button class="btn pri" data-act="simpan" data-s="dihantar">📤 Simpan &amp; Hantar</button>`}
+   ${ED.id ? `<a class="btn" href="#/lihat/${ED.id}">🖨 Pratonton</a>` : ""}</div></div>
+  ${ro ? `<div class="lock mt">🔒 RPH ini berstatus <b>${ST[ED.status].t}</b> dan tidak boleh disunting.${ED.status === "dihantar" ? " Tekan “Tarik balik” di senarai RPH untuk menyunting semula." : ""}${ED.status === "disahkan" ? " Refleksi &amp; kehadiran masih boleh dikemas kini." : ""}</div>` : ""}
+  ${lastPemb && ED.status === "pembetulan" ? `<div class="deadline late mt"><div style="font-size:22px">✏️</div><div><b>Ulasan pentadbir (${esc(lastPemb.nama)}):</b><div>${esc(lastPemb.teks)}</div></div></div>` : ""}
+  <form id="rphForm" class="grid mt" style="gap:16px" onsubmit="return false">
+   <div class="card"><div class="section-t">① Maklumat Asas</div>
+     <div class="grid g3" style="gap:12px">
+       <div class="fld"><label class="f">Tarikh</label><input class="in" type="date" name="tarikh" value="${esc(ED.tarikh)}" ${ro ? "readonly" : ""} data-chg="tarikh"></div>
+       <div class="fld" style="grid-column:span 2"><label class="f">Pilih slot jadual (isi automatik)</label><select class="in" id="slotSel" ${ro ? "disabled" : ""} data-chg="slot"></select></div>
+       <div class="fld"><label class="f">Mata pelajaran</label><input class="in" name="subjek" list="dlSub" value="${esc(ED.subjek)}" ${ro ? "readonly" : ""}></div>
+       <div class="fld"><label class="f">Kelas</label><input class="in" name="kelas" value="${esc(ED.kelas)}" placeholder="cth: Tahun 5 Cemerlang" ${ro ? "readonly" : ""}></div>
+       <div class="fld"><label class="f">Masa</label><div class="row" style="flex-wrap:nowrap"><input class="in" type="time" name="mula" value="${esc(ED.mula)}" ${ro ? "readonly" : ""}><span>–</span><input class="in" type="time" name="tamat" value="${esc(ED.tamat)}" ${ro ? "readonly" : ""}></div></div>
+     </div>
+     <label class="row small" style="gap:8px"><input type="checkbox" name="ditangguhkan" ${ED.ditangguhkan ? "checked" : ""} ${ro ? "disabled" : ""}> Kelas ditangguhkan / tidak berjalan</label>
+     <div class="fld mt ${ED.ditangguhkan ? "" : "hidden"}" id="sebabWrap"><label class="f">Sebab ditangguhkan</label><input class="in" name="sebab" value="${esc(ED.sebab)}" placeholder="cth: Cuti peristiwa, mesyuarat, kursus" ${ro ? "readonly" : ""}></div>
+   </div>
+   <div class="card"><div class="section-t">② Kandungan Kurikulum</div><div class="grid g2" style="gap:0 14px">${F_KAND.map(f => inp(...f)).join("")}</div></div>
+   <div class="card"><div class="section-t">③ Aktiviti Pengajaran &amp; Pembelajaran</div>${F_AKT.map(f => inp(...f)).join("")}</div>
+   <div class="card"><div class="section-t">④ Elemen RPH</div><div class="grid g2" style="gap:0 14px">${F_EL.map(f => inp(f[0], f[1], 1)).join("")}</div></div>
+   <div class="card"><div class="section-t">⑤ Refleksi &amp; Kehadiran</div>
+     <div class="grid g3" style="gap:12px"><div class="fld"><label class="f">Murid hadir</label><input class="in" name="hadir" inputmode="numeric" value="${esc(ED.hadir)}"></div><div class="fld"><label class="f">Jumlah murid</label><input class="in" name="jumlah" inputmode="numeric" value="${esc(ED.jumlah)}"></div></div>
+     <div class="fld"><label class="f">Refleksi / impak (diisi selepas PdP)</label><textarea class="in" name="refleksi" rows="3" placeholder="cth: 24/26 murid mencapai objektif. 2 murid diberi bimbingan tambahan.">${esc(ED.refleksi)}</textarea></div>
+     ${ro && ED.id && ED.uid === S.user.uid ? `<button class="btn pri" data-act="simpanRefleksi">Simpan refleksi</button>` : ""}
+   </div>
+   ${ED.log?.length ? `<div class="card"><div class="section-t">Sejarah &amp; Ulasan</div>${logHtml(ED.log)}</div>` : ""}
+  </form>
+  <datalist id="dlSub">${SUBJEK.map(s => `<option value="${s}">`).join("")}</datalist>`;
+  fillSlotSel();
+  $("[name=ditangguhkan]")?.addEventListener("change", e => $("#sebabWrap").classList.toggle("hidden", !e.target.checked));
+  if (AUTO_AI && !ro) { AUTO_AI = false; setTimeout(openJanaForm, 50); }
+}
+function fillSlotSel() {
+  const d = $("[name=tarikh]")?.value; if (!d) return;
+  const sl = slotsFor(d);
+  $("#slotSel").innerHTML = `<option value="">${sl.length ? `— ${sl.length} slot pada hari ${HARI[parse(d).getDay()]} —` : "Tiada slot jadual pada hari ini"}</option>` + sl.map(s => `<option value="${s.id}" ${s.mula === ED.mula && s.subjek === ED.subjek ? "selected" : ""}>${s.mula}–${s.tamat} · ${esc(s.subjek)} · ${esc(s.kelas)}</option>`).join("");
+}
+function readForm() { const o = {}; $$("#rphForm [name]").forEach(el => o[el.name] = el.type === "checkbox" ? el.checked : el.value.trim()); return o; }
+function logHtml(log) {
+  const L = { dihantar: "📤 Dihantar", pembetulan: "✏️ Minta pembetulan", disahkan: "✅ Disahkan", ulasan: "💬 Ulasan", tarik: "↩ Ditarik balik" };
+  return [...log].reverse().map(l => `<div class="log ${l.tindakan}"><b>${L[l.tindakan] || l.tindakan}</b> · ${esc(l.nama)} <small>${fmtDT(l.masa)}</small>${l.teks ? `<p>${esc(l.teks)}</p>` : ""}</div>`).join("");
+}
+async function saveRph(rec, target) {
+  if (!rec.tarikh || !rec.subjek || !rec.kelas) { toast("Sila isi tarikh, mata pelajaran dan kelas.", true); return null; }
+  rec.isnin = mondayOf(rec.tarikh); rec.minggu = weekNo(rec.tarikh); rec.guru_nama = S.profile.nama;
+  if (!rec.mula) rec.mula = null; if (!rec.tamat) rec.tamat = null;
+  if (target === "dihantar") {
+    rec.status = "dihantar";
+    rec.log = [...(rec.log || []), { nama: S.profile.nama, tindakan: "dihantar", teks: "", masa: new Date().toISOString() }];
+  } else if (!rec.status) rec.status = "draf";
+  const row = Object.fromEntries(COLS.filter(k => k in rec).map(k => [k, rec[k] === "" && ["mula", "tamat"].includes(k) ? null : rec[k]]));
+  try {
+    const out = rec.id ? await q(sb.from("rph").update(row).eq("id", rec.id).select().single()) : await q(sb.from("rph").insert(row).select().single());
+    const i = S.my.findIndex(r => r.id === out.id); if (i >= 0) S.my[i] = out; else S.my.push(out);
+    refreshPending(); updateBadges();
+    return out;
+  } catch (e) { toast(e.message, true); return null; }
+}
+
+/* ---------- PAPARAN / CETAK ---------- */
+function docHtml(r) {
+  const row = (l, v) => `<tr><th>${l}</th><td class="pre">${esc(v) || "-"}</td></tr>`;
+  return `<div class="doc">
+   <div class="dh"><b>${esc(S.settings.nama_sekolah).toUpperCase()}</b><div class="small">RANCANGAN PENGAJARAN HARIAN · MINGGU ${r.minggu || weekNo(r.tarikh)}</div></div>
+   <table>
+    <tr><th>Mata Pelajaran</th><td>${esc(r.subjek)}</td></tr><tr><th>Kelas</th><td>${esc(r.kelas)}</td></tr>
+    <tr><th>Tarikh / Masa</th><td>${fmtT(r.tarikh)} · ${esc(r.mula)} – ${esc(r.tamat)}</td></tr><tr><th>Guru</th><td>${esc(r.guru_nama)}</td></tr>
+    ${r.ditangguhkan ? `<tr><th>Status Kelas</th><td style="color:var(--red);font-weight:700">DITANGGUHKAN — ${esc(r.sebab)}</td></tr>` : ""}
+    ${F_KAND.map(f => row(f[1], r[f[0]])).join("")}
+    <tr><th>Aktiviti PdP</th><td class="pre"><b>Set Induksi</b>\n${esc(r.induksi) || "-"}\n\n<b>Aktiviti Utama</b>\n${esc(r.utama) || "-"}\n\n<b>Penutup</b>\n${esc(r.penutup) || "-"}</td></tr>
+    ${F_EL.map(f => row(f[1], r[f[0]])).join("")}
+    ${row("Kehadiran", r.hadir ? `${r.hadir} / ${r.jumlah || "?"} murid` : "")}
+    ${row("Refleksi", r.refleksi)}
+   </table>
+   <div class="row between mt"><div class="small muted">Dihantar: ${fmtDT(r.dihantar_pada)}${r.lewat ? " (lewat)" : ""}</div>
+   ${r.status === "disahkan" ? `<div class="stamp">DISAHKAN · ${esc(r.disahkan_oleh || "")} · ${fmtDT(r.disahkan_pada).split(",")[0]}</div>` : chip(r.status)}</div>
+  </div>`;
+}
+async function vLihat(id) {
+  const r = S.my.find(x => x.id === id) || await q(sb.from("rph").select("*").eq("id", id).maybeSingle());
+  if (!r) return $("#view").innerHTML = `<div class="empty">RPH tidak dijumpai.</div>`;
+  setTitle(`RPH · ${r.subjek}`);
+  const mine = r.uid === S.user.uid, can = mine && (r.status === "draf" || r.status === "pembetulan");
+  $("#view").innerHTML = `<div class="row between noprint"><a class="btn ghost" href="#/${mine ? "rph" : "semakan"}/${r.isnin}">← Kembali</a>
+    <div class="row">${can ? `<a class="btn" href="#/edit/${r.id}">Sunting</a><button class="btn pri" data-act="hantar" data-id="${r.id}">📤 Hantar</button>` : ""}${mine ? `<button class="btn" data-act="salin" data-id="${r.id}">⧉ Salin</button>` : ""}<button class="btn" data-act="print">🖨 Cetak / PDF</button></div></div>
+    <div class="mt">${docHtml(r)}</div>
+    ${r.log?.length ? `<div class="card mt noprint"><div class="section-t">Sejarah &amp; Ulasan</div>${logHtml(r.log)}</div>` : ""}`;
+}
+
+/* ---------- JANA AI ---------- */
+function aiNote() {
+  return S.aiReady ? `<div class="small muted">Dijana oleh Gemini (${esc(S.settings.ai_model)}). Semak semula sebelum menghantar.</div>`
+    : `<div class="deadline small" style="padding:10px 12px"><div>ℹ️ AI belum diaktifkan — kandungan <b>contoh</b> akan diisi. Pentadbir boleh aktifkan AI di <b>Tetapan → Janaan AI</b>.</div></div>`;
+}
+function openJanaForm() {
+  const f = readForm();
+  modal("✦ Jana RPH dengan AI", `${aiNote()}
+   <div class="grid g2 mt" style="gap:0 12px">
+    <div class="fld"><label class="f">Mata pelajaran</label><input class="in" id="jSub" list="dlSub" value="${esc(f.subjek)}"></div>
+    <div class="fld"><label class="f">Kelas</label><input class="in" id="jKel" value="${esc(f.kelas)}"></div>
+   </div>
+   <div class="fld"><label class="f">Tajuk / topik (kosongkan untuk cadangan AI)</label><input class="in" id="jTaj" value="${esc(f.tajuk)}"></div>
+   <div class="fld"><label class="f">Standard kandungan / pembelajaran (pilihan)</label><textarea class="in" id="jSk" rows="2">${esc([f.sk, f.sp].filter(Boolean).join("\n"))}</textarea></div>
+   <div class="fld"><label class="f">Catatan untuk AI (pilihan)</label><input class="in" id="jCat" placeholder="cth: kelas lemah, guna permainan bahasa, ada murid pemulihan"></div>
+   <div class="fld"><label class="f">Gaya</label><select class="in" id="jGaya"><option value="terperinci">Terperinci</option><option value="ringkas">Ringkas</option></select></div>
+   <label class="row small"><input type="checkbox" id="jOver" checked> Ganti medan yang sudah diisi</label>`,
+    `<button class="btn" data-act="mclose">Batal</button><button class="btn ai" id="jGo">✦ Jana sekarang</button>`);
+  $("#jGo").onclick = async () => {
+    const b = $("#jGo"); b.disabled = true; b.innerHTML = `<span class="spin"></span> Menjana…`;
+    const skp = $("#jSk").value.split("\n");
+    const req = { ...f, subjek: $("#jSub").value, kelas: $("#jKel").value, tajuk: $("#jTaj").value, sk: skp[0] || "", sp: skp.slice(1).join("\n") };
+    try {
+      const out = await aiGenerate(req, { catatan: $("#jCat").value, gaya: $("#jGaya").value });
+      const over = $("#jOver").checked; closeModal();
+      $("[name=subjek]").value = req.subjek; $("[name=kelas]").value = req.kelas;
+      for (const k of AI_KEYS) { const el = $(`[name=${k}]`); if (el && (over || !el.value.trim())) el.value = out[k] || el.value; }
+      toast(S.aiReady ? "RPH dijana! Semak sebelum simpan." : "Kandungan contoh diisi. Semak & ubah suai.");
+    } catch (e) { b.disabled = false; b.textContent = "✦ Cuba lagi"; toast("Gagal menjana: " + e.message, true); }
+  };
+}
+function lastTajuk(s) {
+  const p = S.my.filter(r => r.subjek === s.subjek && r.kelas === s.kelas && r.tajuk).sort((a, b) => b.tarikh.localeCompare(a.tarikh))[0];
+  return p?.tajuk || "";
+}
+function openJanaSehari(d) {
+  const draw = () => {
+    const dd = $("#jsD").value, sl = slotsFor(dd);
+    $("#jsRows").innerHTML = sl.length ? sl.map(s => { const ex = findRph(dd, s); return `<div class="item" style="flex-wrap:wrap"><input type="checkbox" class="jsC" data-s="${s.id}" ${ex ? "disabled" : "checked"}><span class="tm">${s.mula}–${s.tamat}</span><div class="grow" style="min-width:150px"><b>${esc(s.subjek)}</b><span class="small muted">${esc(s.kelas)}</span></div>
+      ${ex ? chip(ex.status) + `<span class="small muted">sudah ada</span>` : `<input class="in jsT" data-s="${s.id}" style="flex:2;min-width:200px" placeholder="Tajuk (kosong = AI cadang)${lastTajuk(s) ? " · lepas: " + esc(lastTajuk(s)) : ""}">`}</div>`; }).join("")
+      : `<div class="empty">Tiada slot jadual pada ${HARI[parse(dd).getDay()]}. <a href="#/jadual">Isi jadual waktu</a>.</div>`;
+  };
+  modal("✦ Jana RPH Sehari (Automasi)", `<p class="small muted" style="margin-top:0">Sistem membaca jadual waktu anda dan menjana RPH bagi setiap kelas pada tarikh dipilih. RPH disimpan sebagai <b>draf</b> untuk disemak.</p>${aiNote()}
+    <div class="row mt"><div class="fld" style="margin:0"><label class="f">Tarikh</label><input class="in" type="date" id="jsD" value="${d || today()}"></div>
+    <div class="fld" style="margin:0;flex:1"><label class="f">Catatan umum untuk AI (pilihan)</label><input class="in" id="jsCat" placeholder="cth: minggu ulang kaji, fokus KBAT"></div></div>
+    <div class="list mt" id="jsRows"></div>
+    <label class="row small mt"><input type="checkbox" id="jsSend"> Terus hantar kepada pentadbir selepas dijana</label>
+    <div class="mt hidden" id="jsProg"><div class="prog"><i id="jsBar"></i></div><div class="small muted mt" id="jsMsg"></div></div>`,
+    `<button class="btn" data-act="mclose">Batal</button><button class="btn ai" id="jsGo">✦ Jana Sekarang</button>`, true);
+  draw(); $("#jsD").onchange = draw;
+  $("#jsGo").onclick = async () => {
+    const dd = $("#jsD").value, pick = $$(".jsC:checked").map(c => S.slots.find(s => s.id === c.dataset.s)).filter(Boolean);
+    if (!pick.length) return toast("Tiada slot dipilih.", true);
+    const send = $("#jsSend").checked, b = $("#jsGo"); b.disabled = true; b.innerHTML = `<span class="spin"></span> Menjana…`;
+    $("#jsProg").classList.remove("hidden");
+    let ok = 0;
+    for (let i = 0; i < pick.length; i++) {
+      const s = pick[i]; $("#jsMsg").textContent = `(${i + 1}/${pick.length}) ${s.subjek} · ${s.kelas}…`;
+      const base = { tarikh: dd, mula: s.mula, tamat: s.tamat, subjek: s.subjek, kelas: s.kelas, tajuk: $(`.jsT[data-s="${s.id}"]`)?.value.trim() || "" };
+      try {
+        const out = await aiGenerate(base, { catatan: $("#jsCat").value });
+        if (await saveRph({ ...base, ...out, tajuk: base.tajuk || out.tajuk, status: "draf", log: [], refleksi: "" }, send ? "dihantar" : "draf")) ok++;
+      } catch (e) { toast(`${s.subjek}: ${e.message}`, true); }
+      $("#jsBar").style.width = `${((i + 1) / pick.length) * 100}%`;
+    }
+    closeModal(); toast(`${ok} RPH dijana${send ? " dan dihantar" : " sebagai draf"} untuk ${fmtT(dd)}.`);
+    location.hash = `#/rph/${mondayOf(dd)}`; route();
+  };
+}
+
+/* ---------- JADUAL WAKTU ---------- */
+async function vJadual() {
+  setTitle("Jadual Waktu");
+  const days = [1, 2, 3, 4, 5];
+  $("#view").innerHTML = `<div class="grid" style="grid-template-columns:minmax(0,1fr)">
+   <div class="card"><h3>➕ Tambah slot kelas</h3>
+    <div class="row" style="align-items:flex-end">
+     <div><label class="f">Hari</label><select class="in" id="jH">${days.map(d => `<option value="${d}">${HARI[d]}</option>`).join("")}</select></div>
+     <div><label class="f">Mula</label><input class="in" type="time" id="jM" value="07:40"></div>
+     <div><label class="f">Tamat</label><input class="in" type="time" id="jT" value="08:40"></div>
+     <div style="flex:1;min-width:180px"><label class="f">Mata pelajaran</label><input class="in" id="jS" list="dlSub2" placeholder="Bahasa Melayu"></div>
+     <div style="flex:1;min-width:160px"><label class="f">Kelas</label><input class="in" id="jK" placeholder="Tahun 5 Cemerlang"></div>
+     <button class="btn pri" data-act="addSlot">Tambah</button>
+    </div><datalist id="dlSub2">${SUBJEK.map(s => `<option value="${s}">`).join("")}</datalist>
+    <p class="small muted" style="margin-bottom:0">Slot ini digunakan untuk “Jana RPH Sehari”, senarai RPH tertunggak, peringatan automatik dan pemantauan pentadbir.</p></div>
+   <div class="tw" style="padding:10px"><div class="tt">
+    <div class="h">Masa</div>${days.map(d => `<div class="h">${HARI[d]}</div>`).join("")}
+    <div class="h" style="align-self:start">Slot</div>
+    ${days.map(d => `<div class="cell">${S.slots.filter(s => s.hari === d).map(s => `<div class="slot"><button class="x" data-act="delSlot" data-id="${s.id}" title="Padam">×</button><b>${s.mula}–${s.tamat}</b>${esc(s.subjek)}<br><span class="muted">${esc(s.kelas)}</span></div>`).join("") || `<span class="small muted">—</span>`}</div>`).join("")}
+   </div></div>
+   <div class="small muted">Jumlah: ${S.slots.length} slot seminggu · ${S.slots.reduce((a, s) => a + minit(s.mula, s.tamat), 0)} minit</div></div>`;
+}
+
+/* ---------- PENTADBIR: SEMAKAN ---------- */
+const SEM = { w: null, guru: "", st: "dihantar", rows: [] };
+async function vSemakan(w) {
+  setTitle("Semakan RPH");
+  SEM.w = w && /^\d{4}/.test(w) ? mondayOf(w) : (SEM.w || mondayOf(today()));
+  const [rows, users, pendAll] = await Promise.all([
+    q(sb.from("rph").select("*").eq("isnin", SEM.w)),
+    q(sb.from("profiles").select("id,nama").order("nama")),
+    q(sb.from("rph").select("id,isnin").eq("status", "dihantar"))
+  ]);
+  S.pending = pendAll.length; updateBadges(); SEM.rows = rows;
+  const otherWeeks = [...new Set(pendAll.filter(r => r.isnin !== SEM.w).map(r => r.isnin))].sort();
+  const f = rows.filter(r => (!SEM.guru || r.uid === SEM.guru) && (SEM.st ? r.status === SEM.st : r.status !== "draf"))
+    .sort((a, b) => (a.guru_nama || "").localeCompare(b.guru_nama || "") || a.tarikh.localeCompare(b.tarikh) || (a.mula || "").localeCompare(b.mula || ""));
+  const c = s => rows.filter(r => r.status === s).length;
+  $("#view").innerHTML = `
+   <div class="row between"><div class="weeknav"><a class="btn sm" href="#/semakan/${addDays(SEM.w, -7)}">‹</a><b>Minggu ${weekNo(SEM.w)} · ${fmtTs(SEM.w)} – ${fmtTs(addDays(SEM.w, 4))}</b><a class="btn sm" href="#/semakan/${addDays(SEM.w, 7)}">›</a></div>
+   <div class="small muted">Tarikh akhir: <b>${fmtDT(deadlineFor(SEM.w))}</b></div></div>
+   ${otherWeeks.length ? `<div class="deadline mt small" style="padding:10px 14px"><div>📥 Ada RPH menunggu semakan pada minggu lain: ${otherWeeks.map(x => `<a href="#/semakan/${x}">Minggu ${weekNo(x)} (${pendAll.filter(r => r.isnin === x).length})</a>`).join(" · ")}</div></div>` : ""}
+   <div class="grid g4 mt">
+     <div class="stat"><b style="color:var(--blue)">${c("dihantar")}</b><span>Menunggu semakan</span></div><div class="stat"><b style="color:var(--red)">${c("pembetulan")}</b><span>Dipulangkan</span></div>
+     <div class="stat"><b style="color:var(--green)">${c("disahkan")}</b><span>Disahkan</span></div><div class="stat"><b style="color:var(--gold)">${rows.filter(r => r.lewat).length}</b><span>Dihantar lewat</span></div></div>
+   <div class="card mt">
+    <div class="row between"><div class="row">
+      <select class="in" style="width:auto" id="fGuru" data-chg="semF"><option value="">Semua guru</option>${users.map(u => `<option value="${u.id}" ${SEM.guru === u.id ? "selected" : ""}>${esc(u.nama)}</option>`).join("")}</select>
+      <select class="in" style="width:auto" id="fSt" data-chg="semF"><option value="">Semua status (kecuali draf)</option>${["dihantar", "pembetulan", "disahkan"].map(s => `<option value="${s}" ${SEM.st === s ? "selected" : ""}>${ST[s].t}</option>`).join("")}</select></div>
+     <div class="row"><label class="small row"><input type="checkbox" id="selAll" data-chg="selAll"> Pilih semua</label><button class="btn ok sm" data-act="sahkanPilih">✅ Sahkan terpilih</button></div></div>
+    <div class="tw mt"><table class="t"><thead><tr><th></th><th>Guru</th><th>Tarikh</th><th>Kelas / Subjek</th><th>Tajuk</th><th>Status</th><th></th></tr></thead><tbody>
+     ${f.map(r => `<tr><td>${r.status === "dihantar" ? `<input type="checkbox" class="semC" value="${r.id}">` : ""}</td><td><b>${esc(r.guru_nama)}</b></td><td>${fmtTs(r.tarikh)} <span class="muted small">${r.mula || ""}</span></td><td>${esc(r.subjek)}<div class="small muted">${esc(r.kelas)}</div></td><td>${esc(r.tajuk)}</td>
+       <td>${chip(r.status)} ${r.lewat ? `<span class="chip c-gold">Lewat</span>` : ""}</td><td><button class="btn sm ${r.status === "dihantar" ? "pri" : ""}" data-act="semak" data-id="${r.id}">${r.status === "dihantar" ? "Semak" : "Lihat"}</button></td></tr>`).join("") || `<tr><td colspan="7"><div class="empty">Tiada RPH untuk penapis ini.</div></td></tr>`}
+    </tbody></table></div></div>`;
+}
+function openSemak(id) {
+  const r = SEM.rows.find(x => x.id === id); if (!r) return;
+  modal(`Semak RPH · ${esc(r.guru_nama)}`, `${docHtml(r)}
+    ${r.log?.length ? `<div class="card mt"><div class="section-t">Sejarah &amp; Ulasan</div>${logHtml(r.log)}</div>` : ""}
+    <div class="card mt noprint"><div class="section-t">Ulasan Pentadbir</div>
+    <textarea class="in" id="ulTeks" rows="3" placeholder="Tulis ulasan / teguran membina…"></textarea>
+    <div class="row mt small muted">Templat: ${["Baik. Teruskan.", "Sila lengkapkan SK/SP mengikut DSKP.", "Objektif perlu boleh diukur.", "Tambah elemen PAK-21 dan KBAT.", "Sila isi refleksi."].map(t => `<button class="btn sm" data-act="ulT" data-t="${esc(t)}">${t}</button>`).join("")}</div></div>`,
+    `<button class="btn" data-act="print">🖨 Cetak</button><span style="flex:1"></span><button class="btn" data-act="semakAct" data-id="${r.id}" data-a="ulasan">💬 Ulasan sahaja</button><button class="btn warn" data-act="semakAct" data-id="${r.id}" data-a="pembetulan">✏️ Minta Pembetulan</button><button class="btn ok" data-act="semakAct" data-id="${r.id}" data-a="disahkan">✅ Sahkan</button>`, true);
+}
+async function semakAct(id, a, teks) {
+  const r = SEM.rows.find(x => x.id === id) || await q(sb.from("rph").select("*").eq("id", id).single());
+  if (a === "pembetulan" && !teks) { toast("Sila tulis ulasan pembetulan untuk guru.", true); return false; }
+  if (a === "ulasan" && !teks) { toast("Ulasan kosong.", true); return false; }
+  const masa = new Date().toISOString();
+  const patch = { log: [...(r.log || []), { nama: S.profile.nama, tindakan: a, teks, masa }] };
+  if (a === "disahkan") Object.assign(patch, { status: "disahkan", disahkan_oleh: S.profile.nama, disahkan_pada: masa });
+  if (a === "pembetulan") patch.status = "pembetulan";
+  await q(sb.from("rph").update(patch).eq("id", id));
+  Object.assign(r, patch); const mine = S.my.find(x => x.id === id); if (mine) Object.assign(mine, patch);
+  return true;
+}
+
+/* ---------- PENTADBIR: PEMANTAUAN ---------- */
+const PAN = { w: null, data: [] };
+async function vPantau(w) {
+  setTitle("Pemantauan Penghantaran");
+  PAN.w = w && /^\d{4}/.test(w) ? mondayOf(w) : mondayOf(today());
+  const [users, slots, rows] = await Promise.all([
+    q(sb.from("profiles").select("*").eq("aktif", true)), q(sb.from("slots").select("uid")), q(sb.from("rph").select("uid,status,lewat").eq("isnin", PAN.w))]);
+  const dl = deadlineFor(PAN.w), lewatNow = new Date() > dl;
+  PAN.data = users.map(u => {
+    const sl = slots.filter(s => s.uid === u.id).length, rs = rows.filter(r => r.uid === u.id), n = s => rs.filter(r => r.status === s).length;
+    const hantar = rs.filter(r => r.status !== "draf").length;
+    return { u, sl, bina: rs.length, hantar, dihantar: n("dihantar"), pemb: n("pembetulan"), sah: n("disahkan"), lewat: rs.filter(r => r.lewat).length, pct: sl ? Math.min(100, Math.round(hantar / sl * 100)) : (rs.length ? 100 : 0) };
+  }).sort((a, b) => a.pct - b.pct || a.u.nama.localeCompare(b.u.nama));
+  const belum = PAN.data.filter(d => d.sl && d.hantar < d.sl);
+  $("#view").innerHTML = `
+   <div class="row between"><div class="weeknav"><a class="btn sm" href="#/pantau/${addDays(PAN.w, -7)}">‹</a><b>Minggu ${weekNo(PAN.w)} · ${fmtTs(PAN.w)} – ${fmtTs(addDays(PAN.w, 4))}</b><a class="btn sm" href="#/pantau/${addDays(PAN.w, 7)}">›</a></div>
+   <div class="row"><button class="btn" data-act="ingatSemua" ${belum.length ? "" : "disabled"}>📣 Ingatkan semua yang belum lengkap (${belum.length})</button><button class="btn" data-act="csv">⬇ CSV</button></div></div>
+   <div class="grid g4 mt">
+    <div class="stat"><b>${users.length}</b><span>Pengguna aktif</span></div>
+    <div class="stat"><b style="color:var(--green)">${PAN.data.filter(d => d.sl && d.hantar >= d.sl).length}</b><span>Guru lengkap hantar</span></div>
+    <div class="stat"><b style="color:var(--red)">${belum.length}</b><span>Guru belum lengkap</span></div>
+    <div class="stat"><b style="font-size:16px">${fmtDT(dl)}</b><span>${lewatNow ? "Tarikh akhir telah berlalu" : "Tarikh akhir · " + countdown(dl)}</span></div></div>
+   <div class="tw mt"><table class="t"><thead><tr><th>Guru</th><th>Slot</th><th>Dibina</th><th>Dihantar</th><th>Menunggu</th><th>Pembetulan</th><th>Disahkan</th><th>Lewat</th><th style="min-width:130px">Kemajuan</th><th></th></tr></thead><tbody>
+    ${PAN.data.map(d => `<tr><td><b>${esc(d.u.nama)}</b><div class="small muted">${esc(d.u.jawatan || "")}</div></td><td>${d.sl || `<span class="muted small">tiada jadual</span>`}</td><td>${d.bina}</td><td>${d.hantar}</td><td>${d.dihantar}</td><td>${d.pemb ? `<span class="chip c-red">${d.pemb}</span>` : 0}</td><td>${d.sah}</td><td>${d.lewat ? `<span class="chip c-gold">${d.lewat}</span>` : 0}</td>
+      <td><div class="row" style="flex-wrap:nowrap"><div class="bar" style="flex:1"><i style="width:${d.pct}%;${d.pct < 50 ? "background:#d97706" : ""}"></i></div><b class="small">${d.pct}%</b></div></td>
+      <td>${d.sl && d.hantar < d.sl ? `<button class="btn sm" data-act="ingat" data-id="${d.u.id}" data-n="${d.hantar}" data-s="${d.sl}">📣</button>` : ""}</td></tr>`).join("")}
+   </tbody></table></div>`;
+}
+const ingatMsg = (h, s) => `RPH Minggu ${weekNo(PAN.w)} anda belum lengkap (${h}/${s} dihantar). Tarikh akhir: ${fmtDT(deadlineFor(PAN.w))}. Sila lengkapkan dan hantar.`;
+
+/* ---------- PENTADBIR: TARIKH AKHIR ---------- */
+async function vTarikh() {
+  setTitle("Tarikh Akhir Penghantaran");
+  const st = S.settings, mon = mondayOf(today());
+  const weeks = Array.from({ length: 12 }, (_, i) => addDays(mon, (i - 2) * 7));
+  const toLocal = d => `${iso(d)}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+  const offs = [[-4, "Khamis minggu sebelumnya"], [-3, "Jumaat minggu sebelumnya"], [-2, "Sabtu minggu sebelumnya"], [-1, "Ahad sebelum minggu bermula"], [0, "Isnin minggu itu"], [4, "Jumaat minggu itu"]];
+  $("#view").innerHTML = `
+   <div class="card"><h3>📏 Peraturan lalai</h3>
+    <p class="small muted" style="margin-top:0">Digunakan untuk semua minggu kecuali minggu yang mempunyai tarikh akhir khas di bawah.</p>
+    <div class="row" style="align-items:flex-end">
+     <div><label class="f">Hari tarikh akhir</label><select class="in" id="dOff">${offs.map(o => `<option value="${o[0]}" ${Number(st.deadline_offset) === o[0] ? "selected" : ""}>${o[1]}</option>`).join("")}</select></div>
+     <div><label class="f">Jam</label><input class="in" type="time" id="dJam" value="${esc(st.deadline_jam)}"></div>
+     <label class="row small" style="padding-bottom:10px"><input type="checkbox" id="dSekat" ${st.sekat_lewat ? "checked" : ""}> Sekat penghantaran selepas tarikh akhir</label>
+     <button class="btn pri" data-act="saveDefault">Simpan peraturan</button></div>
+    <p class="small muted" style="margin-bottom:0">Jika tidak disekat, RPH masih boleh dihantar tetapi ditanda <span class="chip c-gold">Lewat</span> oleh pelayan. Guru menerima peringatan automatik ${st.ingatan_hari} hari sebelum tarikh akhir (7 pagi &amp; 8 malam).</p></div>
+   <div class="card mt"><h3>📆 Tarikh akhir mengikut minggu</h3>
+    <div class="tw"><table class="t"><thead><tr><th>Minggu</th><th>Tempoh</th><th>Tarikh akhir</th><th>Tarikh akhir khas</th><th>Catatan</th><th></th></tr></thead><tbody>
+     ${weeks.map(w => { const o = S.ta[w], dl = deadlineFor(w); return `<tr ${w === mon ? `style="background:var(--em-50)"` : ""}><td><b>Minggu ${weekNo(w)}</b>${w === mon ? ` <span class="chip c-green">Semasa</span>` : ""}</td><td class="small">${fmtTs(w)} – ${fmtTs(addDays(w, 4))}</td>
+       <td><b>${fmtDT(dl)}</b><div class="small muted">${o ? "khas" : "lalai"}</div></td>
+       <td><input class="in" type="datetime-local" id="ta_${w}" value="${o ? toLocal(new Date(o.tarikh_akhir)) : ""}" style="min-width:190px"></td>
+       <td><input class="in" id="tc_${w}" value="${esc(o?.catatan)}" placeholder="cth: Cuti Deepavali"></td>
+       <td class="row" style="flex-wrap:nowrap"><button class="btn sm pri" data-act="saveTA" data-w="${w}">Simpan</button>${o ? `<button class="btn sm" data-act="clearTA" data-w="${w}">Lalai</button>` : ""}</td></tr>`; }).join("")}
+    </tbody></table></div></div>`;
+}
+
+/* ---------- PENTADBIR: GURU ---------- */
+async function vGuru() {
+  setTitle("Senarai Guru");
+  const us = await q(sb.from("profiles").select("*").order("nama"));
+  $("#view").innerHTML = `
+   <div class="grid g2">
+    <div class="card"><h3>➕ Daftar seorang guru</h3>
+      <div class="fld"><label class="f">Nama penuh</label><input class="in" id="gN" placeholder="Siti Asmah binti Mahmud"></div>
+      <div class="grid g2" style="gap:0 12px"><div class="fld"><label class="f">E-mel (DELIMa)</label><input class="in" id="gE" type="email" placeholder="g-xxxx@moe-dl.edu.my"></div>
+      <div class="fld"><label class="f">Jawatan</label><input class="in" id="gJ" placeholder="Guru Bahasa Melayu"></div></div>
+      <div class="fld"><label class="f">Kata laluan sementara</label><input class="in" id="gP" value="SKJB2026"><div class="small muted">Guru diminta menukar kata laluan pada log masuk pertama.</div></div>
+      <button class="btn pri" data-act="addGuru">Daftar</button></div>
+    <div class="card"><h3>📋 Daftar pukal</h3>
+      <p class="small muted" style="margin-top:0">Satu guru setiap baris: <code>Nama, e-mel, jawatan</code> (boleh salin dari Excel — tab juga diterima).</p>
+      <textarea class="in" id="gBulk" rows="6" placeholder="Siti Asmah binti Mahmud, g-123@moe-dl.edu.my, Guru BM&#10;Ahmad Rahman, g-456@moe-dl.edu.my, Guru Matematik"></textarea>
+      <div class="row mt"><input class="in" id="gBP" value="SKJB2026" style="max-width:180px" title="Kata laluan sementara"><button class="btn pri" data-act="bulkGuru">Daftar semua</button></div>
+      <div class="small mt" id="bulkOut"></div></div>
+   </div>
+   <div class="tw mt"><table class="t"><thead><tr><th>Nama</th><th>E-mel</th><th>Jawatan</th><th>Peranan</th><th>Status</th><th></th></tr></thead><tbody>
+   ${us.map(u => { const me = u.id === S.user.uid; return `<tr style="${u.aktif ? "" : "opacity:.55"}"><td><b>${esc(u.nama)}</b>${u.tukar_kata_laluan ? `<div class="small muted">belum tukar kata laluan</div>` : ""}</td><td class="small">${esc(u.email)}</td>
+     <td><input class="in" style="min-width:150px" value="${esc(u.jawatan)}" data-chg="jawatan" data-id="${u.id}"></td>
+     <td>${u.peranan === "pentadbir" ? `<span class="chip c-gold">Pentadbir</span>` : `<span class="chip c-green">Guru</span>`}</td>
+     <td>${u.aktif ? "Aktif" : "Tidak aktif"}</td>
+     <td class="row" style="flex-wrap:nowrap;gap:6px"><button class="btn sm" data-act="togAdmin" data-id="${u.id}" data-p="${u.peranan}" ${me ? "disabled" : ""}>${u.peranan === "pentadbir" ? "Jadikan guru" : "Jadikan pentadbir"}</button>
+       <button class="btn sm" data-act="resetPw" data-id="${u.id}" data-n="${esc(u.nama)}">🔑</button>
+       <button class="btn sm" data-act="togAktif" data-id="${u.id}" data-a="${u.aktif ? 1 : ""}" ${me ? "disabled" : ""}>${u.aktif ? "Nyahaktif" : "Aktifkan"}</button></td></tr>`; }).join("")}
+   </tbody></table></div>`;
+}
+
+/* ---------- PENTADBIR: TETAPAN ---------- */
+async function vTetapan() {
+  setTitle("Tetapan");
+  const st = S.settings;
+  $("#view").innerHTML = `<div class="grid g2">
+   <div class="card"><h3>🏫 Sekolah</h3>
+    <div class="fld"><label class="f">Nama sekolah</label><input class="in" id="tNama" value="${esc(st.nama_sekolah)}"></div>
+    <div class="fld"><label class="f">Tarikh Isnin Minggu 1</label><input class="in" type="date" id="tM1" value="${esc(st.mula_minggu1)}"><div class="small muted">Hari ini = Minggu ${weekNo(today())}. Laraskan supaya sepadan dengan takwim sekolah.</div></div>
+    <button class="btn pri" data-act="saveSek">Simpan</button></div>
+   <div class="card"><h3>✦ Janaan AI (Gemini)</h3>
+    <p class="small" style="margin-top:0">Status: ${S.aiReady ? `<span class="chip c-green">Aktif — kunci disimpan dengan selamat di pelayan</span>` : `<span class="chip c-gold">Belum aktif</span>`}</p>
+    <div class="fld"><label class="f">Kunci API Gemini</label><input class="in" id="tKey" type="password" placeholder="${S.aiReady ? "•••••• (biar kosong untuk kekalkan)" : "AIza…"}"><div class="small muted">Dapatkan percuma di <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener">aistudio.google.com/apikey</a>. Kunci tidak boleh dilihat oleh guru.</div></div>
+    <div class="fld"><label class="f">Model</label><input class="in" id="tModel" value="${esc(st.ai_model)}"></div>
+    <div class="row"><button class="btn pri" data-act="saveAi">Simpan</button><button class="btn" data-act="testAi">Uji AI</button>${S.aiReady ? `<button class="btn" data-act="delKey">Padam kunci</button>` : ""}</div></div>
+   <div class="card"><h3>🔔 Peringatan automatik</h3>
+    <label class="row small"><input type="checkbox" id="tIng" ${st.ingatan_aktif ? "checked" : ""}> Hantar peringatan kepada guru yang belum lengkap (7 pagi &amp; 8 malam)</label>
+    <div class="fld mt"><label class="f">Mula mengingatkan berapa hari sebelum tarikh akhir</label><input class="in" type="number" min="0" max="7" id="tIngH" value="${st.ingatan_hari}" style="max-width:120px"></div>
+    <div class="row"><button class="btn pri" data-act="saveIng">Simpan</button><button class="btn" data-act="ingatSekarang">Hantar peringatan sekarang</button></div></div>
+   <div class="card"><h3>📣 Hebahan kepada semua guru</h3>
+    <div class="fld"><label class="f">Tajuk</label><input class="in" id="hT" placeholder="cth: Pemeriksaan RPH oleh PPD"></div>
+    <div class="fld"><label class="f">Mesej</label><textarea class="in" id="hM" rows="3"></textarea></div>
+    <button class="btn pri" data-act="hebahan">Hantar hebahan</button></div>
+  </div>`;
+}
+
+/* ---------- profil & kata laluan ---------- */
+function openPassword(forced) {
+  S.forcePw = forced;
+  modal(forced ? "🔐 Tukar kata laluan sementara" : "🔐 Tukar kata laluan", `${forced ? `<p class="small muted" style="margin-top:0">Selamat datang ke eRPH! Sila tetapkan kata laluan anda sendiri sebelum meneruskan.</p>` : ""}
+    <div class="fld"><label class="f">Kata laluan baharu (min 8 aksara)</label><input class="in" type="password" id="pw1" autocomplete="new-password"></div>
+    <div class="fld"><label class="f">Ulang kata laluan</label><input class="in" type="password" id="pw2" autocomplete="new-password"></div>`,
+    `${forced ? "" : `<button class="btn" data-act="mclose">Batal</button>`}<button class="btn pri" data-act="savePw">Simpan kata laluan</button>`, false, forced);
+}
+async function openProfil() {
+  const ps = await pushStatus();
+  const pst = { aktif: `<span class="chip c-green">Aktif pada peranti ini</span>`, tidak: `<span class="chip c-grey">Belum aktif</span>`, disekat: `<span class="chip c-red">Disekat oleh pelayar</span>`, tiada: `<span class="chip c-grey">Tidak disokong</span>` }[ps];
+  modal("Profil saya", `<div class="fld"><label class="f">Nama</label><input class="in" id="prN" value="${esc(S.profile.nama)}"></div>
+    <div class="fld"><label class="f">Jawatan</label><input class="in" id="prJ" value="${esc(S.profile.jawatan)}"></div>
+    <div class="small muted">E-mel: ${esc(S.profile.email)}</div>
+    <div class="card mt"><b>🔔 Notifikasi telefon / komputer</b> ${pst}
+      <p class="small muted">Terima peringatan tarikh akhir, ulasan dan pengesahan RPH walaupun aplikasi ditutup. Di iPhone, tambah eRPH ke Skrin Utama dahulu (Kongsi → Tambah ke Skrin Utama).</p>
+      <div class="row">${ps !== "aktif" ? `<button class="btn pri" data-act="pushOn">Hidupkan</button>` : ""}<button class="btn" data-act="ujiNotif">Hantar notifikasi ujian</button></div></div>`,
+    `<button class="btn" data-act="tukarPw">🔐 Tukar kata laluan</button><span style="flex:1"></span><button class="btn" data-act="mclose">Tutup</button><button class="btn pri" data-act="saveProfil">Simpan</button>`);
+}
+
+/* ---------- tindakan ---------- */
+const ACT = {
+  async login(d, b) {
+    const e = $("#lEmail").value.trim(), p = $("#lPass").value;
+    if (!e || !p) return toast("Isi e-mel dan kata laluan.", true);
+    b.disabled = true; b.innerHTML = `<span class="spin"></span> Log masuk…`;
+    const { data, error } = await sb.auth.signInWithPassword({ email: e, password: p });
+    if (error) { b.disabled = false; b.textContent = "Log Masuk"; return toast(error.message === "Invalid login credentials" ? "E-mel atau kata laluan salah." : error.message, true); }
+    await afterLogin(data.user);
+  },
+  async logout() { clearInterval(window._clk); await sb.auth.signOut(); location.hash = ""; },
+  menu() { $("#side").classList.toggle("open"); },
+  mclose() { S.forcePw = false; closeModal(); }, ovclose() { closeModal(); },
+  print() { window.print(); },
+  profil() { openProfil(); },
+  tukarPw() { openPassword(false); },
+  async savePw() {
+    const a = $("#pw1").value, b = $("#pw2").value;
+    if (a.length < 8) return toast("Kata laluan sekurang-kurangnya 8 aksara.", true);
+    if (a !== b) return toast("Kata laluan tidak sepadan.", true);
+    const { error } = await sb.auth.updateUser({ password: a });
+    if (error) return toast(error.message, true);
+    await q(sb.from("profiles").update({ tukar_kata_laluan: false }).eq("id", S.user.uid));
+    S.profile.tukar_kata_laluan = false; S.forcePw = false; closeModal(); toast("Kata laluan dikemas kini.");
+  },
+  async saveProfil() {
+    const p = { nama: $("#prN").value.trim(), jawatan: $("#prJ").value.trim() };
+    if (!p.nama) return toast("Nama diperlukan.", true);
+    await q(sb.from("profiles").update(p).eq("id", S.user.uid)); Object.assign(S.profile, p); closeModal(); renderShell(); route(); toast("Profil dikemas kini.");
+  },
+  async pushOn(d, b) {
+    b.disabled = true;
+    try { await enablePush(); toast("Notifikasi dihidupkan pada peranti ini. 🔔"); closeModal(); route(); }
+    catch (e) { toast(e.message, true); b.disabled = false; }
+  },
+  async ujiNotif() { await q(sb.rpc("uji_notifikasi")); toast("Notifikasi ujian dihantar."); },
+  notifPanel() {
+    modal("🔔 Notifikasi", `<div class="list" id="notifList"></div>`,
+      `<button class="btn" data-act="profil">Tetapan notifikasi</button><span style="flex:1"></span><button class="btn" data-act="bacaSemua">Tandakan semua dibaca</button>`);
+    drawNotifList();
+  },
+  async bukaNotif(d) {
+    const n = S.notif.find(x => x.id === d.id);
+    if (n && !n.dibaca) { n.dibaca = true; updateBadges(); sb.from("notifikasi").update({ dibaca: true }).eq("id", n.id).then(() => { }); }
+    closeModal(); if (n?.pautan) { if (location.hash === n.pautan) route(); else location.hash = n.pautan; }
+  },
+  async bacaSemua() {
+    await q(sb.from("notifikasi").update({ dibaca: true }).eq("user_id", S.user.uid).eq("dibaca", false));
+    S.notif.forEach(n => n.dibaca = true); updateBadges(); drawNotifList();
+  },
+  janaSehari(d) { openJanaSehari(d.d); },
+  janaSatu(d) { AUTO_AI = true; location.hash = `#/edit/baru?t=${d.d}&s=${d.s}`; },
+  janaForm() { openJanaForm(); },
+  salinTerdahulu() {
+    const f = readForm();
+    const prev = S.my.filter(r => r.id !== ED.id && (!f.subjek || r.subjek === f.subjek)).sort((a, b) => b.tarikh.localeCompare(a.tarikh)).slice(0, 15);
+    modal("Salin daripada RPH terdahulu", prev.length ? `<div class="list">${prev.map(r => `<div class="item"><span class="tm">${fmtTs(r.tarikh)}</span><div class="grow"><b>${esc(r.subjek)} · ${esc(r.kelas)}</b><span class="small muted">${esc(r.tajuk)}</span></div><button class="btn sm pri" data-act="salinIni" data-id="${r.id}">Guna</button></div>`).join("")}</div>` : `<div class="empty">Tiada RPH terdahulu${f.subjek ? " bagi " + esc(f.subjek) : ""}.</div>`);
+  },
+  salinIni(d) { const r = S.my.find(x => x.id === d.id); closeModal(); for (const k of AI_KEYS) { const el = $(`[name=${k}]`); if (el) el.value = r[k] || ""; } toast("Kandungan disalin. Kemas kini mengikut keperluan."); },
+  async simpan(d, b) {
+    const rec = { ...ED, ...readForm() };
+    if (d.s === "dihantar" && !rec.objektif && !rec.ditangguhkan) return toast("Objektif pembelajaran masih kosong.", true);
+    b.disabled = true; const r = await saveRph(rec, d.s); b.disabled = false;
+    if (!r) return;
+    toast(d.s === "dihantar" ? (r.lewat ? "RPH dihantar (ditanda lewat)." : "RPH dihantar kepada pentadbir.") : "Draf disimpan.");
+    location.hash = d.s === "dihantar" ? `#/rph/${r.isnin}` : `#/edit/${r.id}`;
+  },
+  async simpanRefleksi() {
+    const f = readForm(), p = { refleksi: f.refleksi, hadir: f.hadir, jumlah: f.jumlah };
+    await q(sb.from("rph").update(p).eq("id", ED.id)); Object.assign(S.my.find(r => r.id === ED.id) || {}, p); toast("Refleksi disimpan.");
+  },
+  refleksi(d) {
+    const r = S.my.find(x => x.id === d.id);
+    modal(`Refleksi · ${esc(r.subjek)} ${esc(r.kelas)} (${fmtTs(r.tarikh)})`, `<div class="grid g2" style="gap:12px"><div><label class="f">Murid hadir</label><input class="in" id="rfH" value="${esc(r.hadir)}"></div><div><label class="f">Jumlah murid</label><input class="in" id="rfJ" value="${esc(r.jumlah)}"></div></div>
+      <div class="fld mt"><label class="f">Refleksi</label><textarea class="in" id="rfT" rows="4" placeholder="cth: 24/26 murid mencapai objektif…">${esc(r.refleksi)}</textarea></div>
+      <div class="row small muted">Pantas: ${["Semua murid mencapai objektif.", "Sebahagian murid perlu bimbingan lanjut.", "PdP ditangguhkan."].map(t => `<button class="btn sm" data-act="rfT" data-t="${t}">${t}</button>`).join("")}</div>`,
+      `<button class="btn" data-act="mclose">Batal</button><button class="btn pri" id="rfGo">Simpan</button>`);
+    $("#rfGo").onclick = async () => { const p = { refleksi: $("#rfT").value.trim(), hadir: $("#rfH").value.trim(), jumlah: $("#rfJ").value.trim() }; await q(sb.from("rph").update(p).eq("id", r.id)); Object.assign(r, p); closeModal(); toast("Refleksi disimpan."); route(); };
+  },
+  rfT(d) { $("#rfT").value = d.t; },
+  async hantar(d) {
+    const r = S.my.find(x => x.id === d.id); if (!r) return;
+    if (!r.objektif && !r.ditangguhkan) return toast("RPH belum lengkap (objektif kosong). Sunting dahulu.", true);
+    const out = await saveRph(clean(r), "dihantar"); if (out) { toast(out.lewat ? "Dihantar (ditanda lewat)." : "RPH dihantar."); route(); }
+  },
+  async hantarSemua(d) {
+    const list = S.my.filter(r => r.isnin === d.w && (r.status === "draf" || r.status === "pembetulan"));
+    const inc = list.filter(r => !r.objektif && !r.ditangguhkan);
+    if (!await confirmBox(`Hantar <b>${list.length - inc.length}</b> RPH minggu ${weekNo(d.w)} kepada pentadbir?${inc.length ? `<br><span class="small muted">${inc.length} RPH tidak lengkap akan dilangkau.</span>` : ""}`)) return;
+    let n = 0; for (const r of list) if (!inc.includes(r)) { if (await saveRph(clean(r), "dihantar")) n++; else break; }
+    toast(`${n} RPH dihantar.`); route();
+  },
+  async tarik(d) {
+    const r = S.my.find(x => x.id === d.id);
+    if (!await confirmBox("Tarik balik RPH ini untuk disunting? Status akan kembali kepada Draf.")) return;
+    const p = { status: "draf", log: [...(r.log || []), { nama: S.profile.nama, tindakan: "tarik", teks: "", masa: new Date().toISOString() }] };
+    Object.assign(r, await q(sb.from("rph").update(p).eq("id", r.id).select().single())); refreshPending(); toast("RPH ditarik balik."); route();
+  },
+  async padam(d) { if (!await confirmBox("Padam draf RPH ini?")) return; await q(sb.from("rph").delete().eq("id", d.id)); S.my = S.my.filter(r => r.id !== d.id); toast("Dipadam."); route(); },
+  salin(d) {
+    const r = S.my.find(x => x.id === d.id) || {};
+    modal("Salin RPH", `<p class="small muted" style="margin-top:0">Salin kandungan “${esc(r.tajuk)}” ke tarikh lain sebagai draf baharu.</p><div class="fld"><label class="f">Tarikh baharu</label><input class="in" type="date" id="cpD" value="${addDays(r.tarikh, 7)}"></div>`,
+      `<button class="btn" data-act="mclose">Batal</button><button class="btn pri" id="cpGo">Salin</button>`);
+    $("#cpGo").onclick = async () => {
+      const src = clean(r), rec = { tarikh: $("#cpD").value, status: "draf", log: [], refleksi: "", hadir: "", ditangguhkan: false, sebab: "" };
+      ["mula", "tamat", "subjek", "kelas", ...AI_KEYS, "jumlah"].forEach(k => rec[k] = src[k]);
+      const n = await saveRph(rec, "draf");
+      if (n) { closeModal(); toast("Disalin sebagai draf."); location.hash = `#/edit/${n.id}`; }
+    };
+  },
+  async addSlot() {
+    const s = { uid: S.user.uid, hari: Number($("#jH").value), mula: $("#jM").value, tamat: $("#jT").value, subjek: $("#jS").value.trim(), kelas: $("#jK").value.trim() };
+    if (!s.subjek || !s.kelas || !s.mula) return toast("Lengkapkan maklumat slot.", true);
+    S.slots.push(await q(sb.from("slots").insert(s).select().single())); S.slots.sort((a, b) => a.hari - b.hari || a.mula.localeCompare(b.mula));
+    const h = $("#jH").value, t = $("#jT").value, sub = $("#jS").value, k = $("#jK").value;
+    await vJadual(); $("#jH").value = h; $("#jM").value = t; $("#jS").value = sub; $("#jK").value = k;
+    const [hh, mm] = t.split(":").map(Number), e = hh * 60 + mm + 60; $("#jT").value = `${pad(Math.floor(e / 60) % 24)}:${pad(e % 60)}`;
+    toast("Slot ditambah.");
+  },
+  async delSlot(d) { await q(sb.from("slots").delete().eq("id", d.id)); S.slots = S.slots.filter(s => s.id !== d.id); vJadual(); },
+  semak(d) { openSemak(d.id); },
+  ulT(d) { const t = $("#ulTeks"); t.value = (t.value ? t.value + " " : "") + d.t; },
+  async semakAct(d) {
+    if (await semakAct(d.id, d.a, $("#ulTeks").value.trim())) { closeModal(); toast({ disahkan: "RPH disahkan. Guru dimaklumkan.", pembetulan: "Dipulangkan kepada guru. Guru dimaklumkan.", ulasan: "Ulasan disimpan. Guru dimaklumkan." }[d.a]); vSemakan(SEM.w); }
+  },
+  async sahkanPilih() {
+    const ids = $$(".semC:checked").map(c => c.value);
+    if (!ids.length) return toast("Tiada RPH dipilih.", true);
+    if (!await confirmBox(`Sahkan ${ids.length} RPH terpilih?`)) return;
+    for (const id of ids) await semakAct(id, "disahkan", "");
+    toast(`${ids.length} RPH disahkan.`); vSemakan(SEM.w);
+  },
+  csv() {
+    const h = ["Guru", "Jawatan", "Slot", "Dibina", "Dihantar", "Menunggu", "Pembetulan", "Disahkan", "Lewat", "Peratus"];
+    const rows = PAN.data.map(d => [d.u.nama, d.u.jawatan || "", d.sl, d.bina, d.hantar, d.dihantar, d.pemb, d.sah, d.lewat, d.pct + "%"]);
+    const csv = [h, ...rows].map(r => r.map(v => `"${String(v).replace(/"/g, '""')}"`).join(",")).join("\n");
+    const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob(["﻿" + csv], { type: "text/csv" })); a.download = `pemantauan-rph-minggu-${weekNo(PAN.w)}.csv`; a.click();
+  },
+  async ingat(d) { await q(sb.rpc("ingatkan_guru", { p_uid: d.id, p_mesej: ingatMsg(d.n, d.s) })); toast("Peringatan dihantar."); },
+  async ingatSemua() {
+    const belum = PAN.data.filter(x => x.sl && x.hantar < x.sl);
+    if (!await confirmBox(`Hantar peringatan kepada ${belum.length} guru yang belum lengkap?`)) return;
+    for (const x of belum) await q(sb.rpc("ingatkan_guru", { p_uid: x.u.id, p_mesej: ingatMsg(x.hantar, x.sl) }));
+    toast(`Peringatan dihantar kepada ${belum.length} guru.`);
+  },
+  async saveDefault() {
+    const p = { deadline_offset: Number($("#dOff").value), deadline_jam: $("#dJam").value || "23:59", sekat_lewat: $("#dSekat").checked };
+    await q(sb.from("settings").update(p).eq("id", 1)); Object.assign(S.settings, p); toast("Peraturan tarikh akhir disimpan."); vTarikh();
+  },
+  async saveTA(d) {
+    const v = $(`#ta_${d.w}`).value, c = $(`#tc_${d.w}`).value.trim();
+    if (!v) return toast("Pilih tarikh & masa, atau tekan “Lalai”.", true);
+    const o = await q(sb.from("tarikh_akhir").upsert({ isnin: d.w, tarikh_akhir: new Date(v).toISOString(), catatan: c, oleh: S.profile.nama, dikemaskini: new Date().toISOString() }).select().single());
+    S.ta[d.w] = o; toast(`Tarikh akhir minggu ${weekNo(d.w)} ditetapkan.`); vTarikh();
+  },
+  async clearTA(d) { await q(sb.from("tarikh_akhir").delete().eq("isnin", d.w)); delete S.ta[d.w]; toast("Kembali kepada peraturan lalai."); vTarikh(); },
+  async addGuru(d, b) {
+    const n = $("#gN").value.trim(), e = $("#gE").value.trim(), p = $("#gP").value;
+    if (!n || !e) return toast("Isi nama dan e-mel.", true);
+    b.disabled = true;
+    try { await q(sb.rpc("admin_cipta_guru", { p_email: e, p_nama: n, p_jawatan: $("#gJ").value.trim(), p_kata_laluan: p })); toast(`${n} didaftarkan. Kata laluan sementara: ${p}`); vGuru(); }
+    catch (err) { toast(err.message, true); b.disabled = false; }
+  },
+  async bulkGuru(d, b) {
+    const lines = $("#gBulk").value.split("\n").map(l => l.split(/\t|,/).map(x => x.trim())).filter(l => l[0] && l[1]);
+    if (!lines.length) return toast("Tiada baris yang sah.", true);
+    b.disabled = true; const out = [];
+    for (const [n, e, j] of lines) {
+      try { await q(sb.rpc("admin_cipta_guru", { p_email: e, p_nama: n, p_jawatan: j || "", p_kata_laluan: $("#gBP").value })); out.push(`✅ ${esc(n)}`); }
+      catch (err) { out.push(`❌ ${esc(n)} — ${esc(err.message)}`); }
+      $("#bulkOut").innerHTML = out.join("<br>");
+    }
+    b.disabled = false; toast(`${out.filter(x => x.startsWith("✅")).length}/${lines.length} guru didaftarkan.`);
+    setTimeout(vGuru, 2500);
+  },
+  async togAdmin(d) { await q(sb.from("profiles").update({ peranan: d.p === "pentadbir" ? "guru" : "pentadbir" }).eq("id", d.id)); toast("Peranan dikemas kini."); vGuru(); },
+  async togAktif(d) { await q(sb.from("profiles").update({ aktif: !d.a }).eq("id", d.id)); toast(d.a ? "Akaun dinyahaktifkan." : "Akaun diaktifkan."); vGuru(); },
+  resetPw(d) {
+    modal(`🔑 Set semula kata laluan · ${esc(d.n)}`, `<div class="fld"><label class="f">Kata laluan sementara baharu</label><input class="in" id="rpw" value="SKJB2026"></div><p class="small muted">Guru akan diminta menukarnya semasa log masuk.</p>`,
+      `<button class="btn" data-act="mclose">Batal</button><button class="btn pri" id="rpGo">Set semula</button>`);
+    $("#rpGo").onclick = async () => { try { await q(sb.rpc("admin_set_kata_laluan", { p_uid: d.id, p_kata_laluan: $("#rpw").value })); closeModal(); toast("Kata laluan ditetapkan semula."); vGuru(); } catch (e) { toast(e.message, true); } };
+  },
+  async saveSek() { const p = { nama_sekolah: $("#tNama").value.trim(), mula_minggu1: $("#tM1").value }; await q(sb.from("settings").update(p).eq("id", 1)); Object.assign(S.settings, p); toast("Disimpan."); renderShell(); route(); },
+  async saveAi() {
+    const k = $("#tKey").value.trim(), m = $("#tModel").value.trim() || "gemini-2.5-flash";
+    if (k) await q(sb.rpc("tetap_kunci_ai", { p_kunci: k }));
+    await q(sb.from("settings").update({ ai_model: m }).eq("id", 1)); S.settings.ai_model = m;
+    S.aiReady = !!(await sb.rpc("status_ai")).data; toast("Tetapan AI disimpan."); vTetapan();
+  },
+  async delKey() { if (!await confirmBox("Padam kunci Gemini? AI akan dimatikan.")) return; await q(sb.rpc("tetap_kunci_ai", { p_kunci: "" })); S.aiReady = false; toast("Kunci dipadam."); vTetapan(); },
+  async testAi(d, b) {
+    if (!S.aiReady) return toast("Simpan kunci API Gemini dahulu.", true);
+    b.disabled = true; b.innerHTML = `<span class="spin" style="border-color:#ccc;border-top-color:#047857"></span> Menguji…`;
+    try { const o = await aiGenerate({ subjek: "Bahasa Melayu", kelas: "Tahun 4", tarikh: today(), mula: "08:00", tamat: "09:00", tajuk: "Peribahasa" }, { gaya: "ringkas" }); toast(`AI berfungsi: “${o.objektif.slice(0, 80)}…”`); }
+    catch (e) { toast("AI gagal: " + e.message, true); }
+    b.disabled = false; b.textContent = "Uji AI";
+  },
+  async saveIng() { const p = { ingatan_aktif: $("#tIng").checked, ingatan_hari: Number($("#tIngH").value) || 2 }; await q(sb.from("settings").update(p).eq("id", 1)); Object.assign(S.settings, p); toast("Tetapan peringatan disimpan."); },
+  async ingatSekarang() { const n = await q(sb.rpc("hantar_peringatan_sekarang")); toast(n ? `Peringatan dihantar kepada ${n} guru.` : "Tiada guru perlu diingatkan sekarang (belum masuk tempoh peringatan atau semua lengkap)."); },
+  async hebahan() {
+    const t = $("#hT").value.trim(), m = $("#hM").value.trim();
+    if (!t) return toast("Isi tajuk hebahan.", true);
+    const n = await q(sb.rpc("hantar_hebahan", { p_tajuk: t, p_mesej: m })); $("#hT").value = $("#hM").value = ""; toast(`Hebahan dihantar kepada ${n} pengguna.`);
+  }
+};
+const CHG = {
+  tarikh() { fillSlotSel(); },
+  slot(el) { const s = S.slots.find(x => x.id === el.value); if (!s) return; $("[name=mula]").value = s.mula; $("[name=tamat]").value = s.tamat; $("[name=subjek]").value = s.subjek; $("[name=kelas]").value = s.kelas; },
+  semF() { SEM.guru = $("#fGuru").value; SEM.st = $("#fSt").value; vSemakan(SEM.w); },
+  selAll(el) { $$(".semC").forEach(c => c.checked = el.checked); },
+  async jawatan(el) { await q(sb.from("profiles").update({ jawatan: el.value.trim() }).eq("id", el.dataset.id)); toast("Jawatan dikemas kini."); }
+};
+document.addEventListener("click", async e => {
+  const b = e.target.closest("[data-act]"); if (!b) return;
+  if (b.dataset.act === "ovclose" && e.target !== b) return;
+  if (b.tagName === "A" || b.tagName === "BUTTON") e.preventDefault();
+  try { await ACT[b.dataset.act]?.(b.dataset, b, e); } catch (err) { console.error(err); toast("Ralat: " + err.message, true); }
+});
+document.addEventListener("change", e => { const el = e.target.closest("[data-chg]"); if (el) CHG[el.dataset.chg]?.(el)?.catch?.(err => toast(err.message, true)); });
+document.addEventListener("keydown", e => { if (e.key === "Escape" && !S.forcePw) closeModal(); });
+
+boot();
+</script>
+</body>
+</html>
