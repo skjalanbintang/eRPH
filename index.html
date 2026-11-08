@@ -421,7 +421,7 @@ function renderLogin() {
 /* ---------- rangka aplikasi ---------- */
 function navItems() {
   const g = [["utama", "🏠", "Utama"], ["rph", "📘", "RPH Saya", "bRph"], ["jadual", "🗓️", "Jadual Waktu"]];
-  const a = [["semakan", "✅", "Semakan RPH", "bSem"], ["pantau", "📊", "Pemantauan"], ["tarikh", "⏰", "Tarikh Akhir"], ["guru", "👥", "Senarai Guru"], ["tetapan", "⚙️", "Tetapan"]];
+  const a = [["semakan", "✅", "Semakan RPH", "bSem"], ["pantau", "📊", "Pemantauan"], ["tarikh", "⏰", "Tarikh Akhir"], ["guru", "👥", "Senarai Guru"], ["importjadual", "📥", "Import Jadual aSc"], ["tetapan", "⚙️", "Tetapan"]];
   const li = x => `<a href="#/${x[0]}" data-r="${x[0]}"><span class="ic">${x[1]}</span>${x[2]}${x[3] ? `<span class="bdg hidden" id="${x[3]}"></span>` : ""}</a>`;
   return `<div class="grp">Guru</div>${g.map(li).join("")}${S.isAdmin ? `<div class="grp">Pentadbir</div>${a.map(li).join("")}` : ""}`;
 }
@@ -506,9 +506,9 @@ async function route() {
   $$(".nav a").forEach(x => x.classList.toggle("on", x.dataset.r === r));
   $("#side")?.classList.remove("open"); if (!S.forcePw) closeModal();
   const v = $("#view"); v.innerHTML = `<div class="muted">Memuatkan…</div>`;
-  if (["semakan", "pantau", "tarikh", "guru", "tetapan"].includes(r) && !S.isAdmin) return location.hash = "#/utama";
+  if (["semakan", "pantau", "tarikh", "guru", "importjadual", "tetapan"].includes(r) && !S.isAdmin) return location.hash = "#/utama";
   try {
-    const V = { utama: vUtama, rph: vRph, jadual: vJadual, edit: vEdit, lihat: vLihat, semakan: vSemakan, pantau: vPantau, tarikh: vTarikh, guru: vGuru, tetapan: vTetapan };
+    const V = { utama: vUtama, rph: vRph, jadual: vJadual, edit: vEdit, lihat: vLihat, semakan: vSemakan, pantau: vPantau, tarikh: vTarikh, guru: vGuru, importjadual: vImport, tetapan: vTetapan };
     await (V[r] || vUtama)(a, b);
   } catch (e) { console.error(e); v.innerHTML = `<div class="card"><b>Ralat:</b> ${esc(e.message)}</div>`; }
   window.scrollTo(0, 0);
@@ -791,7 +791,7 @@ async function vJadual() {
      <div style="flex:1;min-width:160px"><label class="f">Kelas</label><input class="in" id="jK" placeholder="Tahun 5 Cemerlang"></div>
      <button class="btn pri" data-act="addSlot">Tambah</button>
     </div><datalist id="dlSub2">${SUBJEK.map(s => `<option value="${s}">`).join("")}</datalist>
-    <p class="small muted" style="margin-bottom:0">Slot ini digunakan untuk “Jana RPH Sehari”, senarai RPH tertunggak, peringatan automatik dan pemantauan pentadbir.</p></div>
+    ${S.slots.some(s => s.sumber === "asc") ? `<p class="small" style="margin-bottom:0">📥 Jadual anda diimport daripada aSc Timetables oleh pentadbir. Anda masih boleh menambah atau memadam slot.</p>` : ""}<p class="small muted" style="margin-bottom:0">Slot ini digunakan untuk “Jana RPH Sehari”, senarai RPH tertunggak, peringatan automatik dan pemantauan pentadbir.</p></div>
    <div class="tw" style="padding:10px"><div class="tt">
     <div class="h">Masa</div>${days.map(d => `<div class="h">${HARI[d]}</div>`).join("")}
     <div class="h" style="align-self:start">Slot</div>
@@ -1196,6 +1196,141 @@ const CHG = {
   selAll(el) { $$(".semC").forEach(c => c.checked = el.checked); },
   async jawatan(el) { await q(sb.from("profiles").update({ jawatan: el.value.trim() }).eq("id", el.dataset.id)); toast("Jawatan dikemas kini."); }
 };
+/* ---------- PENTADBIR: IMPORT JADUAL aSc ---------- */
+const DESTARX_URLS = ["https://raw.githubusercontent.com/skjalanbintang/destarx/main/jadual.html", "/destarx/jadual.html"];
+const SUBJEK_LALAI = { BM: "Bahasa Melayu", BI: "Bahasa Inggeris", MT: "Matematik", SN: "Sains", Sej: "Sejarah", PJ: "Pendidikan Jasmani", PK: "Pendidikan Kesihatan", PSV: "Pendidikan Seni Visual", MZ: "Pendidikan Muzik", PM: "Pendidikan Moral", PAI: "Pendidikan Islam", "PAI(Khatam)": "Pendidikan Islam (Khatam Al-Quran)", BA: "Bahasa Arab", BC: "Bahasa Cina", BT: "Bahasa Tamil", BIB: "Bahasa Iban", RBT: "Reka Bentuk dan Teknologi", TMK: "Teknologi Maklumat dan Komunikasi", Tasmik: "Tasmik Al-Quran" };
+const HARI_KOD = { ISNIN: 1, SELASA: 2, RABU: 3, KHAMIS: 4, JUMAAT: 5, MONDAY: 1, TUESDAY: 2, WEDNESDAY: 3, THURSDAY: 4, FRIDAY: 5, MON: 1, TUE: 2, WED: 3, THU: 4, FRI: 5 };
+const IMP = { src: "", label: "", teachers: [], users: [], map: {}, sub: {} };
+const hhmm = t => { const m = String(t || "").match(/(\d{1,2})[:.](\d{2})/); return m ? `${pad(+m[1])}:${m[2]}` : ""; };
+const normN = s => String(s || "").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/[^a-z0-9 ]/g, " ").replace(/\s+/g, " ").trim();
+
+function mergeEntries(list) {
+  const out = [];
+  list.sort((a, b) => a.hari - b.hari || a.mula.localeCompare(b.mula)).forEach(e => {
+    const p = out.at(-1);
+    if (p && p.hari === e.hari && p.kod === e.kod && p.kelas === e.kelas && p.tamat === e.mula) p.tamat = e.tamat;
+    else out.push({ ...e });
+  });
+  return out;
+}
+function fromDestarx(html) {
+  const i = html.indexOf("const VERSION_DATA = "); if (i < 0) throw new Error("Data jadual tidak dijumpai dalam fail DestarX.");
+  const s = i + "const VERSION_DATA = ".length, arr = JSON.parse(html.slice(s, html.indexOf("\n];", s) + 2));
+  const v = arr.find(x => x.id === (html.match(/DEFAULT_VERSION_ID\s*=\s*"([^"]+)"/) || [])[1]) || arr[0];
+  return { label: v.label, teachers: v.data.teachers.map(t => ({ name: t.name, entries: mergeEntries(t.entries.map(e => ({ hari: HARI_KOD[String(e.day).toUpperCase()], mula: hhmm(e.start), tamat: hhmm(e.end), kod: e.subject, kelas: e.class || "" })).filter(e => e.hari)) })) };
+}
+function fromAscXml(text) {
+  const x = new DOMParser().parseFromString(text, "text/xml");
+  if (x.querySelector("parsererror")) throw new Error("Fail XML tidak sah.");
+  const all = t => [...x.getElementsByTagName(t)], A = (e, k) => e.getAttribute(k) || "";
+  const label = (e) => A(e, "short") || A(e, "name");
+  const per = Object.fromEntries(all("period").map(p => [A(p, "period") || A(p, "name"), { s: hhmm(A(p, "starttime")), e: hhmm(A(p, "endtime")) }]));
+  const subj = Object.fromEntries(all("subject").map(e => [A(e, "id"), label(e)]));
+  const teach = Object.fromEntries(all("teacher").map(e => [A(e, "id"), label(e)]));
+  const cls = Object.fromEntries(all("class").map(e => [A(e, "id"), label(e)]));
+  const les = Object.fromEntries(all("lesson").map(e => [A(e, "id"), e]));
+  if (!all("card").length) throw new Error("Tiada <card> dalam fail. Eksport dari aSc: Fail → Eksport → aSc Timetables XML.");
+  const byT = {};
+  all("card").forEach(c => {
+    const l = les[A(c, "lessonid")]; if (!l) return;
+    const days = A(c, "days"), di = days.includes("1") ? days.indexOf("1") + 1 : (+A(c, "day") || 0) + 1;
+    const pp = A(c, "period"), n = +A(l, "periodspercard") || 1, p1 = per[pp], p2 = per[String(+pp + n - 1)] || p1;
+    if (!p1 || di < 1 || di > 5) return;
+    const kelas = A(l, "classids").split(",").map(i => cls[i]).filter(Boolean).join("/"), kod = subj[A(l, "subjectid")] || "?";
+    A(l, "teacherids").split(",").map(i => teach[i]).filter(Boolean).forEach(t => (byT[t] ??= []).push({ hari: di, mula: p1.s, tamat: p2.e, kod, kelas }));
+  });
+  return { label: "Fail XML aSc", teachers: Object.entries(byT).map(([name, e]) => ({ name, entries: mergeEntries(e) })) };
+}
+function fromCsv(text) {
+  const rows = text.split(/\r?\n/).map(l => l.split(/\t|,|;/).map(c => c.trim().replace(/^"|"$/g, ""))).filter(r => r.length >= 6 && r[0]);
+  if (rows.length && /guru|teacher|nama/i.test(rows[0][0])) rows.shift();
+  const byT = {};
+  rows.forEach(([g, h, m, t, s, k]) => { const hari = HARI_KOD[h.toUpperCase()] || +h; if (hari >= 1 && hari <= 5) (byT[g] ??= []).push({ hari, mula: hhmm(m), tamat: hhmm(t), kod: s, kelas: k }); });
+  if (!Object.keys(byT).length) throw new Error("Tiada baris sah. Format: Guru, Hari, Mula, Tamat, Subjek, Kelas");
+  return { label: "Fail CSV", teachers: Object.entries(byT).map(([name, e]) => ({ name, entries: mergeEntries(e) })) };
+}
+function autoMap(name) {
+  const n = normN(name), u = IMP.users;
+  let m = u.filter(x => normN(x.nama_asc) === n); if (m.length === 1) return m[0].id;
+  if (n.length < 3) return "";
+  m = u.filter(x => { const w = normN(x.nama).replace(/^(cikgu|cg|pn|puan|en|encik|tn|dr) /, ""); return w === n || w.split(" ").includes(n) || (n.includes(" ") && w.startsWith(n)); });
+  return m.length === 1 ? m[0].id : "";
+}
+async function loadImport(res) {
+  IMP.users = await q(sb.from("profiles").select("id,nama,nama_asc,email,aktif").order("nama"));
+  Object.assign(IMP, res, { map: {}, sub: {} });
+  IMP.teachers.forEach(t => IMP.map[t.name] = autoMap(t.name));
+  const saved = S.settings.peta_subjek || {};
+  [...new Set(IMP.teachers.flatMap(t => t.entries.map(e => e.kod)))].sort().forEach(k => IMP.sub[k] = saved[k] ?? { nama: SUBJEK_LALAI[k] || k, abai: false });
+  drawImport();
+}
+function drawImport() {
+  const box = $("#impBox"); if (!box) return;
+  if (!IMP.teachers.length) { box.innerHTML = ""; return; }
+  const total = IMP.teachers.reduce((a, t) => a + t.entries.length, 0), mapped = IMP.teachers.filter(t => IMP.map[t.name]);
+  const used = new Set(Object.values(IMP.map).filter(Boolean));
+  box.innerHTML = `
+   <div class="card mt"><h3>② Padankan guru aSc dengan akaun eRPH <span class="chip c-green">${mapped.length}/${IMP.teachers.length} dipadankan</span></h3>
+    <p class="small muted" style="margin-top:0">Sumber: <b>${esc(IMP.label)}</b> · ${IMP.teachers.length} guru · ${total} slot. Padanan disimpan untuk import akan datang. Guru tanpa akaun boleh didaftarkan dahulu di <a href="#/guru">Senarai Guru</a>, kemudian import semula.</p>
+    <div class="tw" style="max-height:460px"><table class="t"><thead><tr><th>Nama dalam aSc</th><th>Slot</th><th>Contoh</th><th style="min-width:230px">Akaun eRPH</th></tr></thead><tbody>
+    ${IMP.teachers.map((t, i) => `<tr style="${IMP.map[t.name] ? "" : "background:#fffbeb"}"><td><b>${esc(t.name)}</b></td><td>${t.entries.length}</td><td class="small muted">${esc([...new Set(t.entries.map(e => e.kod))].slice(0, 4).join(", "))} · ${esc([...new Set(t.entries.map(e => e.kelas))].slice(0, 3).join(", "))}</td>
+      <td><select class="in" data-chg="impMap" data-i="${i}"><option value="">— Tidak diimport —</option>${IMP.users.filter(u => u.aktif).map(u => `<option value="${u.id}" ${IMP.map[t.name] === u.id ? "selected" : ""}>${esc(u.nama)}${used.has(u.id) && IMP.map[t.name] !== u.id ? " (sudah dipilih)" : ""}</option>`).join("")}</select></td></tr>`).join("")}
+    </tbody></table></div></div>
+   <div class="card mt"><h3>③ Nama penuh mata pelajaran</h3>
+    <p class="small muted" style="margin-top:0">Nama penuh digunakan dalam RPH dan oleh AI. Tandakan “Abai” untuk kod yang bukan PdP (cth. perhimpunan, rehat).</p>
+    <div class="grid g3" style="gap:8px 14px">${Object.entries(IMP.sub).map(([k, v]) => `<div class="row" style="flex-wrap:nowrap;gap:6px"><span class="tm" style="min-width:64px;text-align:center">${esc(k)}</span><input class="in" data-chg="impSub" data-k="${esc(k)}" value="${esc(v.nama)}" ${v.abai ? "disabled" : ""}><label class="small row" style="gap:3px;flex-wrap:nowrap"><input type="checkbox" data-chg="impAbai" data-k="${esc(k)}" ${v.abai ? "checked" : ""}>Abai</label></div>`).join("")}</div></div>
+   <div class="card mt"><h3>④ Import</h3>
+    <p class="small" style="margin-top:0">Jadual sedia ada bagi <b>${mapped.length} guru</b> yang dipadankan akan <b>digantikan</b> dengan jadual dari aSc (${mapped.reduce((a, t) => a + t.entries.filter(e => !IMP.sub[e.kod]?.abai).length, 0)} slot). RPH yang telah dibina tidak terjejas.</p>
+    <button class="btn pri" data-act="doImport" ${mapped.length ? "" : "disabled"}>📥 Import jadual ${mapped.length} guru</button> <span class="small muted" id="impMsg"></span></div>`;
+}
+async function vImport() {
+  setTitle("Import Jadual aSc");
+  $("#view").innerHTML = `<div class="card"><h3>① Pilih sumber jadual</h3>
+    <div class="grid g3">
+      <div class="item" style="flex-direction:column;align-items:flex-start"><b>🔗 Ambil dari DestarX</b><span class="small muted">Jadual induk yang sama seperti dalam ICT Hub (jadual.html).</span><button class="btn pri sm mt" data-act="impDestarx">Ambil sekarang</button></div>
+      <div class="item" style="flex-direction:column;align-items:flex-start"><b>🗂️ Fail XML aSc Timetables</b><span class="small muted">Dalam aSc: Fail → Eksport → <i>aSc Timetables XML</i>.</span><label class="btn sm mt">Pilih fail .xml<input type="file" accept=".xml,text/xml" hidden data-chg="impFile" data-t="xml"></label></div>
+      <div class="item" style="flex-direction:column;align-items:flex-start"><b>📄 CSV / Excel / jadual.html</b><span class="small muted">Lajur: Guru, Hari, Mula, Tamat, Subjek, Kelas — atau fail jadual.html DestarX.</span><label class="btn sm mt">Pilih fail<input type="file" accept=".csv,.txt,.tsv,.html" hidden data-chg="impFile" data-t="csv"></label></div>
+    </div></div><div id="impBox"></div>`;
+  drawImport();
+}
+Object.assign(ACT, {
+  async impDestarx(d, b) {
+    b.disabled = true; b.innerHTML = `<span class="spin"></span> Mengambil…`;
+    let err;
+    for (const u of DESTARX_URLS) { try { const r = await fetch(u, { cache: "no-store" }); if (!r.ok) throw new Error("HTTP " + r.status); await loadImport(fromDestarx(await r.text())); b.disabled = false; b.textContent = "Ambil semula"; toast("Jadual DestarX dimuatkan."); return; } catch (e) { err = e; } }
+    b.disabled = false; b.textContent = "Cuba lagi"; toast("Gagal mengambil jadual DestarX: " + err.message, true);
+  },
+  async doImport(d, b) {
+    const list = IMP.teachers.filter(t => IMP.map[t.name]);
+    const dup = Object.values(IMP.map).filter(Boolean).filter((v, i, a) => a.indexOf(v) !== i);
+    if (dup.length) return toast("Satu akaun eRPH dipadankan dengan lebih daripada seorang guru aSc. Semak semula.", true);
+    if (!await confirmBox(`Gantikan jadual waktu ${list.length} guru dengan jadual dari aSc?`)) return;
+    b.disabled = true; let n = 0, s = 0;
+    const peta = { ...(S.settings.peta_subjek || {}), ...IMP.sub };
+    await q(sb.from("settings").update({ peta_subjek: peta }).eq("id", 1)); S.settings.peta_subjek = peta;
+    for (const t of list) {
+      const slots = t.entries.filter(e => !IMP.sub[e.kod]?.abai).map(e => ({ hari: e.hari, mula: e.mula, tamat: e.tamat, subjek: IMP.sub[e.kod]?.nama || e.kod, kelas: e.kelas }));
+      try { s += await q(sb.rpc("admin_ganti_slot", { p_uid: IMP.map[t.name], p_slots: slots, p_nama_asc: t.name })); n++; }
+      catch (e) { toast(`${t.name}: ${e.message}`, true); }
+      $("#impMsg").textContent = `${n}/${list.length} guru…`;
+    }
+    S.slots = await q(sb.from("slots").select("*").eq("uid", S.user.uid)); S.slots.sort((a, b) => a.hari - b.hari || a.mula.localeCompare(b.mula));
+    b.disabled = false; $("#impMsg").textContent = `✅ Selesai: ${n} guru, ${s} slot diimport.`; toast(`Jadual ${n} guru diimport (${s} slot).`);
+  }
+});
+Object.assign(CHG, {
+  async impFile(el) {
+    const f = el.files[0]; if (!f) return;
+    const txt = await f.text();
+    try { await loadImport(txt.includes("const VERSION_DATA") ? fromDestarx(txt) : /<timetable|<cards|<lessons/i.test(txt) ? fromAscXml(txt) : fromCsv(txt)); toast(`${f.name} dimuatkan.`); }
+    catch (e) { toast(e.message, true); }
+    el.value = "";
+  },
+  impMap(el) { IMP.map[IMP.teachers[+el.dataset.i].name] = el.value; drawImport(); },
+  impSub(el) { IMP.sub[el.dataset.k].nama = el.value.trim(); },
+  impAbai(el) { IMP.sub[el.dataset.k].abai = el.checked; drawImport(); }
+});
+
 document.addEventListener("click", async e => {
   const b = e.target.closest("[data-act]"); if (!b) return;
   if (b.dataset.act === "ovclose" && e.target !== b) return;
