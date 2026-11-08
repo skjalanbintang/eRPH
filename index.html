@@ -210,6 +210,9 @@ table.t tr:hover td{background:#fffcf3}
 .nitem b{display:block;font-size:13.5px}.nitem span{display:block;font-size:13px;color:#3d4a44;margin-top:2px}.nitem small{color:var(--muted);font-size:11.5px}
 .nitem.unread{border-left:4px solid var(--em-600);background:var(--em-50)}
 .me button+button{margin-left:4px}
+.gbtn{width:100%;justify-content:center;padding:11px;font-size:14.5px;gap:10px}
+.or{display:flex;align-items:center;gap:10px;color:var(--muted);font-size:12.5px;margin:16px 0}
+.or:before,.or:after{content:"";flex:1;height:1px;background:var(--line)}
 </style>
 </head>
 <body>
@@ -225,7 +228,7 @@ import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js
 const SUPABASE_URL = "https://smeykkqkbxpivipsmuck.supabase.co";
 const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNtZXlra3FrYnhwaXZpcHNtdWNrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTQxNjQxMzQsImV4cCI6MjEwOTc0MDEzNH0.REvRUMTaEXzi2hU0ohc3JiaVEMzX3dHsiSLCSsM54EI";
 const VAPID_PUBLIC = "BN00zWf5WXnVugKPJ1AGh6FenhT_2rEYH9NvHw4Sw9pmzpOdSpYlLa5mEqcKnaCpscjL-FPQjwGAh21xz8h1ljo";
-const sb = createClient(SUPABASE_URL, SUPABASE_KEY);
+const sb = createClient(SUPABASE_URL, SUPABASE_KEY, { auth: { flowType: "pkce", detectSessionInUrl: true, persistSession: true } });
 
 /* ---------- utiliti ---------- */
 const $ = (s, el = document) => el.querySelector(s);
@@ -363,8 +366,12 @@ function confirmBox(msg) {
 /* ---------- permulaan & log masuk ---------- */
 async function boot() {
   if ("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js").catch(() => { });
+  const qs = new URLSearchParams(location.search), hs = new URLSearchParams(location.hash.replace(/^#\/?/, "").split("?")[0]);
+  const oauthErr = qs.get("error_description") || hs.get("error_description");
   const { data: { session } } = await sb.auth.getSession();
-  if (session?.user) await afterLogin(session.user); else renderLogin();
+  if (qs.has("code") || qs.has("error") || hs.has("error")) history.replaceState(null, "", location.pathname + (hs.has("error") ? "" : location.hash));
+  if (session?.user) await afterLogin(session.user);
+  else { renderLogin(); if (oauthErr) toast("Log masuk Google gagal: " + oauthErr.replace(/\+/g, " "), true); }
   sb.auth.onAuthStateChange((ev) => { if (ev === "SIGNED_OUT") { S.user = null; renderLogin(); } });
 }
 async function afterLogin(u) {
@@ -376,11 +383,16 @@ async function afterLogin(u) {
       sb.rpc("status_ai")
     ]);
     if (!profile) throw new Error("Profil tidak dijumpai. Hubungi pentadbir.");
-    if (!profile.aktif) { await sb.auth.signOut(); return toast("Akaun anda telah dinyahaktifkan. Hubungi pentadbir.", true); }
+    if (!profile.aktif) {
+      await sb.auth.signOut();
+      return toast(profile.menunggu ? `Akaun ${profile.email} sedang menunggu kelulusan pentadbir. Anda akan dapat log masuk selepas diluluskan.` : "Akaun anda telah dinyahaktifkan. Hubungi pentadbir.", true);
+    }
+    const viaGoogle = sessionStorage.getItem("erph_google") === "1" || u.app_metadata?.provider === "google";
+    sessionStorage.removeItem("erph_google");
     S.settings = settings; S.profile = profile; S.isAdmin = profile.peranan === "pentadbir"; S.aiReady = !!ai.data;
     await refreshData();
     renderShell(); route(); startNotif();
-    if (profile.tukar_kata_laluan) openPassword(true);
+    if (profile.tukar_kata_laluan && !viaGoogle) openPassword(true);
   } catch (e) { console.error(e); renderLogin(); toast(e.message, true); }
 }
 async function refreshData() {
@@ -409,8 +421,9 @@ function renderLogin() {
      <div class="feat"><span>✦ Janaan AI</span><span>⚡ Jana RPH Sehari</span><span>📤 Penghantaran</span><span>✔ Semakan &amp; Ulasan</span><span>🔔 Notifikasi</span></div>
    </div>
    <div class="r"><form class="box" id="loginF" onsubmit="return false">
-     <h2 style="margin-bottom:4px">Log Masuk</h2>
-     <p class="small muted" style="margin-top:0">Gunakan e-mel dan kata laluan yang diberi oleh pentadbir.</p>
+     <h2 style="margin-bottom:12px">Log Masuk</h2>
+     <button class="btn gbtn" type="button" data-act="google"><svg width="18" height="18" viewBox="0 0 48 48" aria-hidden="true"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.7 29.2 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.2-.1-2.3-.4-3.5z"/><path fill="#FF3D00" d="m6.3 14.7 6.6 4.8C14.7 15.1 19 12 24 12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/><path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.2 35.1 26.7 36 24 36c-5.2 0-9.6-3.3-11.3-7.9l-6.5 5C9.5 39.6 16.2 44 24 44z"/><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.2-2.2 4.2-4.1 5.6l6.2 5.2C37 39.2 44 34 44 24c0-1.2-.1-2.3-.4-3.5z"/></svg> Log masuk dengan Google (DELIMa)</button>
+     <div class="or"><span>atau guna e-mel &amp; kata laluan</span></div>
      <div class="fld"><label class="f">E-mel</label><input class="in" id="lEmail" type="email" autocomplete="username" required></div>
      <div class="fld"><label class="f">Kata laluan</label><input class="in" id="lPass" type="password" autocomplete="current-password" required></div>
      <button class="btn pri" style="width:100%;justify-content:center;padding:11px" data-act="login" id="lBtn" type="submit">Log Masuk</button>
@@ -913,7 +926,7 @@ async function vTarikh() {
 /* ---------- PENTADBIR: GURU ---------- */
 async function vGuru() {
   setTitle("Senarai Guru");
-  const us = await q(sb.from("profiles").select("*").order("nama"));
+  const us = (await q(sb.from("profiles").select("*").order("nama"))).sort((a, b) => b.menunggu - a.menunggu);
   $("#view").innerHTML = `
    <div class="grid g2">
     <div class="card"><h3>➕ Daftar seorang guru</h3>
@@ -935,10 +948,10 @@ async function vGuru() {
    ${us.map(u => { const me = u.id === S.user.uid; return `<tr style="${u.aktif ? "" : "opacity:.55"}"><td><b>${esc(u.nama)}</b>${u.tukar_kata_laluan ? `<div class="small muted">belum tukar kata laluan</div>` : ""}</td><td class="small">${esc(u.email)}</td>
      <td><input class="in" style="min-width:150px" value="${esc(u.jawatan)}" data-chg="jawatan" data-id="${u.id}"></td>
      <td>${u.peranan === "pentadbir" ? `<span class="chip c-gold">Pentadbir</span>` : `<span class="chip c-green">Guru</span>`}</td>
-     <td>${u.aktif ? "Aktif" : "Tidak aktif"}</td>
+     <td>${u.menunggu ? `<span class="chip c-gold">Menunggu kelulusan</span>` : u.aktif ? "Aktif" : "Tidak aktif"}</td>
      <td class="row" style="flex-wrap:nowrap;gap:6px"><button class="btn sm" data-act="togAdmin" data-id="${u.id}" data-p="${u.peranan}" ${me ? "disabled" : ""}>${u.peranan === "pentadbir" ? "Jadikan guru" : "Jadikan pentadbir"}</button>
        <button class="btn sm" data-act="resetPw" data-id="${u.id}" data-n="${esc(u.nama)}">🔑</button>
-       <button class="btn sm" data-act="togAktif" data-id="${u.id}" data-a="${u.aktif ? 1 : ""}" ${me ? "disabled" : ""}>${u.aktif ? "Nyahaktif" : "Aktifkan"}</button></td></tr>`; }).join("")}
+       <button class="btn sm" data-act="togAktif" data-id="${u.id}" data-a="${u.aktif ? 1 : ""}" ${me ? "disabled" : ""}>${u.menunggu ? "✅ Luluskan" : u.aktif ? "Nyahaktif" : "Aktifkan"}</button></td></tr>`; }).join("")}
    </tbody></table></div>`;
 }
 
@@ -996,6 +1009,16 @@ const ACT = {
     const { data, error } = await sb.auth.signInWithPassword({ email: e, password: p });
     if (error) { b.disabled = false; b.textContent = "Log Masuk"; return toast(error.message === "Invalid login credentials" ? "E-mel atau kata laluan salah." : error.message, true); }
     await afterLogin(data.user);
+  },
+  async google(d, b) {
+    b.disabled = true;
+    try {
+      const st = await fetch(`${SUPABASE_URL}/auth/v1/settings`, { headers: { apikey: SUPABASE_KEY } }).then(r => r.json());
+      if (!st?.external?.google) { b.disabled = false; return toast("Log masuk Google belum diaktifkan oleh pentadbir sistem. Sila guna e-mel & kata laluan buat masa ini.", true); }
+    } catch { }
+    sessionStorage.setItem("erph_google", "1");
+    const { error } = await sb.auth.signInWithOAuth({ provider: "google", options: { redirectTo: location.origin + location.pathname, queryParams: { prompt: "select_account" } } });
+    if (error) { b.disabled = false; sessionStorage.removeItem("erph_google"); toast(error.message, true); }
   },
   async logout() { clearInterval(window._clk); await sb.auth.signOut(); location.hash = ""; },
   menu() { $("#side").classList.toggle("open"); },
@@ -1169,7 +1192,7 @@ const ACT = {
     const keep = $("#csvPrev").innerHTML; await vGuru(); $("#csvPrev").innerHTML = keep;
   },
   async togAdmin(d) { await q(sb.from("profiles").update({ peranan: d.p === "pentadbir" ? "guru" : "pentadbir" }).eq("id", d.id)); toast("Peranan dikemas kini."); vGuru(); },
-  async togAktif(d) { await q(sb.from("profiles").update({ aktif: !d.a }).eq("id", d.id)); toast(d.a ? "Akaun dinyahaktifkan." : "Akaun diaktifkan."); vGuru(); },
+  async togAktif(d) { await q(sb.from("profiles").update({ aktif: !d.a, menunggu: false }).eq("id", d.id)); toast(d.a ? "Akaun dinyahaktifkan." : "Akaun diaktifkan. Guru kini boleh log masuk."); vGuru(); },
   resetPw(d) {
     modal(`🔑 Set semula kata laluan · ${esc(d.n)}`, `<div class="fld"><label class="f">Kata laluan sementara baharu</label><input class="in" id="rpw" value="SKJB2026"></div><p class="small muted">Guru akan diminta menukarnya semasa log masuk.</p>`,
       `<button class="btn" data-act="mclose">Batal</button><button class="btn pri" id="rpGo">Set semula</button>`);
