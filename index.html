@@ -922,11 +922,14 @@ async function vGuru() {
       <div class="fld"><label class="f">Jawatan</label><input class="in" id="gJ" placeholder="Guru Bahasa Melayu"></div></div>
       <div class="fld"><label class="f">Kata laluan sementara</label><input class="in" id="gP" value="SKJB2026"><div class="small muted">Guru diminta menukar kata laluan pada log masuk pertama.</div></div>
       <button class="btn pri" data-act="addGuru">Daftar</button></div>
-    <div class="card"><h3>📋 Daftar pukal</h3>
-      <p class="small muted" style="margin-top:0">Satu guru setiap baris: <code>Nama, e-mel, jawatan</code> (boleh salin dari Excel — tab juga diterima).</p>
-      <textarea class="in" id="gBulk" rows="6" placeholder="Siti Asmah binti Mahmud, g-123@moe-dl.edu.my, Guru BM&#10;Ahmad Rahman, g-456@moe-dl.edu.my, Guru Matematik"></textarea>
-      <div class="row mt"><input class="in" id="gBP" value="SKJB2026" style="max-width:180px" title="Kata laluan sementara"><button class="btn pri" data-act="bulkGuru">Daftar semua</button></div>
-      <div class="small mt" id="bulkOut"></div></div>
+    <div class="card"><h3>📋 Daftar pukal (CSV)</h3>
+      <p class="small muted" style="margin-top:0">Lajur: <b>Nama, E-mel, Jawatan, Kata laluan</b> (jawatan &amp; kata laluan pilihan). Simpan dari Excel sebagai <i>CSV (Comma delimited)</i>.</p>
+      <div class="row"><button class="btn sm" data-act="templatCsv">⬇ Muat turun templat CSV</button><label class="btn sm pri">📄 Pilih fail CSV<input type="file" accept=".csv,.txt,.tsv,text/csv" hidden data-chg="guruCsv"></label></div>
+      <details class="mt"><summary class="small" style="cursor:pointer">atau tampal terus dari Excel</summary>
+        <textarea class="in mt" id="gBulk" rows="5" placeholder="Nama, E-mel, Jawatan&#10;Siti Asmah binti Mahmud, g-123@moe-dl.edu.my, Guru BM"></textarea>
+        <button class="btn sm mt" data-act="semakTampal">Semak senarai</button></details>
+      <div class="row mt"><label class="small">Kata laluan sementara (jika lajur kosong)</label><input class="in" id="gBP" value="SKJB2026" style="max-width:160px"></div>
+      <div id="csvPrev" class="mt"></div></div>
    </div>
    <div class="tw mt"><table class="t"><thead><tr><th>Nama</th><th>E-mel</th><th>Jawatan</th><th>Peranan</th><th>Status</th><th></th></tr></thead><tbody>
    ${us.map(u => { const me = u.id === S.user.uid; return `<tr style="${u.aktif ? "" : "opacity:.55"}"><td><b>${esc(u.nama)}</b>${u.tukar_kata_laluan ? `<div class="small muted">belum tukar kata laluan</div>` : ""}</td><td class="small">${esc(u.email)}</td>
@@ -1147,17 +1150,23 @@ const ACT = {
     try { await q(sb.rpc("admin_cipta_guru", { p_email: e, p_nama: n, p_jawatan: $("#gJ").value.trim(), p_kata_laluan: p })); toast(`${n} didaftarkan. Kata laluan sementara: ${p}`); vGuru(); }
     catch (err) { toast(err.message, true); b.disabled = false; }
   },
+  templatCsv() {
+    const csv = "Nama,E-mel,Jawatan,Kata laluan\nSiti Asmah binti Mahmud,g-12345678@moe-dl.edu.my,Guru Bahasa Melayu,\nAhmad Rahman bin Ali,g-87654321@moe-dl.edu.my,Guru Matematik,\n";
+    const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob(["\ufeff" + csv], { type: "text/csv" })); a.download = "templat-guru-erph.csv"; a.click();
+  },
+  async semakTampal() { await previewGuru($("#gBulk").value); },
   async bulkGuru(d, b) {
-    const lines = $("#gBulk").value.split("\n").map(l => l.split(/\t|,/).map(x => x.trim())).filter(l => l[0] && l[1]);
-    if (!lines.length) return toast("Tiada baris yang sah.", true);
-    b.disabled = true; const out = [];
-    for (const [n, e, j] of lines) {
-      try { await q(sb.rpc("admin_cipta_guru", { p_email: e, p_nama: n, p_jawatan: j || "", p_kata_laluan: $("#gBP").value })); out.push(`✅ ${esc(n)}`); }
-      catch (err) { out.push(`❌ ${esc(n)} — ${esc(err.message)}`); }
-      $("#bulkOut").innerHTML = out.join("<br>");
+    const rows = (GCSV || []).filter(r => r.ok);
+    if (!rows.length) return toast("Tiada guru yang sah untuk didaftarkan.", true);
+    if (!await confirmBox(`Daftar ${rows.length} guru baharu?`)) return;
+    b.disabled = true; let ok = 0;
+    for (const r of rows) {
+      try { await q(sb.rpc("admin_cipta_guru", { p_email: r.email, p_nama: r.nama, p_jawatan: r.jawatan, p_kata_laluan: r.pw || $("#gBP").value })); r.hasil = "✅ Didaftarkan"; ok++; }
+      catch (err) { r.hasil = "❌ " + err.message; }
+      r.ok = false; drawGuruPrev(true);
     }
-    b.disabled = false; toast(`${out.filter(x => x.startsWith("✅")).length}/${lines.length} guru didaftarkan.`);
-    setTimeout(vGuru, 2500);
+    toast(`${ok}/${rows.length} guru didaftarkan.`);
+    const keep = $("#csvPrev").innerHTML; await vGuru(); $("#csvPrev").innerHTML = keep;
   },
   async togAdmin(d) { await q(sb.from("profiles").update({ peranan: d.p === "pentadbir" ? "guru" : "pentadbir" }).eq("id", d.id)); toast("Peranan dikemas kini."); vGuru(); },
   async togAktif(d) { await q(sb.from("profiles").update({ aktif: !d.a }).eq("id", d.id)); toast(d.a ? "Akaun dinyahaktifkan." : "Akaun diaktifkan."); vGuru(); },
@@ -1330,6 +1339,52 @@ Object.assign(CHG, {
   impSub(el) { IMP.sub[el.dataset.k].nama = el.value.trim(); },
   impAbai(el) { IMP.sub[el.dataset.k].abai = el.checked; drawImport(); }
 });
+
+/* ---------- daftar guru pukal (CSV) ---------- */
+let GCSV = null;
+function parseCsv(text) {
+  text = text.replace(/^\ufeff/, "");
+  const first = text.split(/\r?\n/)[0] || "", dl = first.includes("\t") ? "\t" : (first.split(";").length > first.split(",").length ? ";" : ",");
+  const rows = []; let row = [], cur = "", inQ = false;
+  for (let i = 0; i < text.length; i++) {
+    const c = text[i];
+    if (inQ) { if (c === '"' && text[i + 1] === '"') { cur += '"'; i++; } else if (c === '"') inQ = false; else cur += c; }
+    else if (c === '"') inQ = true;
+    else if (c === dl) { row.push(cur.trim()); cur = ""; }
+    else if (c === "\n" || c === "\r") { if (c === "\r" && text[i + 1] === "\n") i++; row.push(cur.trim()); rows.push(row); row = []; cur = ""; }
+    else cur += c;
+  }
+  if (cur || row.length) { row.push(cur.trim()); rows.push(row); }
+  return rows.filter(r => r.some(x => x));
+}
+async function previewGuru(text) {
+  const rows = parseCsv(text); if (!rows.length) return toast("Fail kosong.", true);
+  let idx = { nama: 0, email: 1, jawatan: 2, pw: 3 };
+  const h = rows[0].map(x => x.toLowerCase());
+  if (h.some(x => /nama|name|e-?mel|email/.test(x))) {
+    const f = re => h.findIndex(x => re.test(x));
+    idx = { nama: f(/nama|name/), email: f(/e-?mel|email/), jawatan: f(/jawatan|position|tugas/), pw: f(/kata|pass/) };
+    rows.shift();
+    if (idx.nama < 0 || idx.email < 0) return toast("Lajur Nama dan E-mel tidak dijumpai dalam baris tajuk.", true);
+  }
+  const ada = new Set((await q(sb.from("profiles").select("email"))).map(p => (p.email || "").toLowerCase())), seen = new Set();
+  GCSV = rows.map(r => {
+    const g = k => idx[k] >= 0 ? (r[idx[k]] || "").trim() : "";
+    const o = { nama: g("nama"), email: g("email").toLowerCase(), jawatan: g("jawatan"), pw: g("pw") };
+    o.masalah = !o.nama ? "Nama kosong" : !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(o.email) ? "E-mel tidak sah" : ada.has(o.email) ? "Sudah berdaftar" : seen.has(o.email) ? "E-mel berulang dalam fail" : o.pw && o.pw.length < 6 ? "Kata laluan < 6 aksara" : "";
+    seen.add(o.email); o.ok = !o.masalah; return o;
+  });
+  drawGuruPrev();
+}
+function drawGuruPrev(done) {
+  const n = GCSV.filter(r => r.ok).length;
+  $("#csvPrev").innerHTML = `<div class="row between"><b>${GCSV.length} baris · <span style="color:var(--green)">${n} sedia didaftarkan</span>${GCSV.length - n && !done ? ` · <span style="color:var(--red)">${GCSV.length - n} dilangkau</span>` : ""}</b>
+    ${done ? "" : `<button class="btn pri" data-act="bulkGuru" ${n ? "" : "disabled"}>Daftar ${n} guru</button>`}</div>
+    <div class="tw mt" style="max-height:320px"><table class="t"><thead><tr><th>Nama</th><th>E-mel</th><th>Jawatan</th><th>Status</th></tr></thead><tbody>
+    ${GCSV.map(r => `<tr><td>${esc(r.nama)}</td><td class="small">${esc(r.email)}</td><td class="small">${esc(r.jawatan)}</td><td class="small">${r.hasil ? esc(r.hasil) : r.ok ? `<span class="chip c-green">OK${r.pw ? " · kata laluan sendiri" : ""}</span>` : `<span class="chip c-red">${esc(r.masalah)}</span>`}</td></tr>`).join("")}
+    </tbody></table></div>`;
+}
+Object.assign(CHG, { async guruCsv(el) { const f = el.files[0]; if (!f) return; await previewGuru(await f.text()); el.value = ""; } });
 
 document.addEventListener("click", async e => {
   const b = e.target.closest("[data-act]"); if (!b) return;
