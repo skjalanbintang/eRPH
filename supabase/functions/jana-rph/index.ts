@@ -25,7 +25,7 @@ Deno.serve(async (req) => {
     const { prompt } = await req.json();
     if (!prompt || String(prompt).length > 12000) return j({ error: "Prompt tidak sah." });
     const { data: st } = await admin.from("settings").select("ai_model").eq("id", 1).single();
-    const model = st?.ai_model || "gemini-2.5-flash";
+    const model = st?.ai_model || "gemini-3.8-flash";
 
     const r = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent`, {
       method: "POST",

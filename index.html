@@ -1200,7 +1200,7 @@ const ACT = {
   },
   async saveSek() { const p = { nama_sekolah: $("#tNama").value.trim(), mula_minggu1: $("#tM1").value }; await q(sb.from("settings").update(p).eq("id", 1)); Object.assign(S.settings, p); toast("Disimpan."); renderShell(); route(); },
   async saveAi() {
-    const k = $("#tKey").value.trim(), m = $("#tModel").value.trim() || "gemini-2.5-flash";
+    const k = $("#tKey").value.trim(), m = $("#tModel").value.trim() || "gemini-3.8-flash";
     if (k) await q(sb.rpc("tetap_kunci_ai", { p_kunci: k }));
     await q(sb.from("settings").update({ ai_model: m }).eq("id", 1)); S.settings.ai_model = m;
     S.aiReady = !!(await sb.rpc("status_ai")).data; toast("Tetapan AI disimpan."); vTetapan();
