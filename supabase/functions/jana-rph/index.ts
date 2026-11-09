@@ -1,4 +1,4 @@
-// eRPH SKJB — jana RPH dengan Gemini (kunci disimpan dalam skema private)
+// eRPH SKJB — panggil Gemini (jana RPH / baca RPT). Kunci disimpan dalam skema private.
 import { createClient } from "npm:@supabase/supabase-js@2.45.4";
 
 const cors = {
@@ -7,6 +7,7 @@ const cors = {
   "Access-Control-Allow-Methods": "POST, OPTIONS",
 };
 const j = (o: unknown) => new Response(JSON.stringify(o), { headers: { ...cors, "Content-Type": "application/json" } });
+const MIME_OK = ["application/pdf", "image/png", "image/jpeg", "image/webp", "text/plain"];
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: cors });
@@ -22,8 +23,14 @@ Deno.serve(async (req) => {
     const { data: key } = await admin.rpc("rahsia_pelayan", { p_nama: "gemini_key" });
     if (!key) return j({ tiada_kunci: true });
 
-    const { prompt } = await req.json();
-    if (!prompt || String(prompt).length > 12000) return j({ error: "Prompt tidak sah." });
+    const { prompt, fail } = await req.json();
+    if (!prompt || String(prompt).length > 300000) return j({ error: "Prompt tidak sah atau terlalu panjang." });
+    const parts: unknown[] = [{ text: String(prompt) }];
+    if (fail?.data) {
+      if (!MIME_OK.includes(fail.mime)) return j({ error: "Jenis fail tidak disokong." });
+      if (String(fail.data).length > 14_000_000) return j({ error: "Fail terlalu besar (maksimum ~10MB)." });
+      parts.push({ inline_data: { mime_type: fail.mime, data: fail.data } });
+    }
     const { data: st } = await admin.from("settings").select("ai_model").eq("id", 1).single();
     const model = st?.ai_model || "gemini-3.8-flash";
 
@@ -31,8 +38,8 @@ Deno.serve(async (req) => {
       method: "POST",
       headers: { "Content-Type": "application/json", "x-goog-api-key": key },
       body: JSON.stringify({
-        contents: [{ parts: [{ text: String(prompt) }] }],
-        generationConfig: { responseMimeType: "application/json", temperature: 0.7 },
+        contents: [{ parts }],
+        generationConfig: { responseMimeType: "application/json", temperature: fail ? 0.1 : 0.7, maxOutputTokens: 32768 },
       }),
     });
     const g = await r.json();

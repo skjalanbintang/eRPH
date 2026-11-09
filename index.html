@@ -213,6 +213,17 @@ table.t tr:hover td{background:#fffcf3}
 .hubbtn{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);background:#fff;border-radius:11px;height:38px;padding:0 12px;font-weight:700;font-size:13px;color:var(--em-800);text-decoration:none;white-space:nowrap}
 .hubbtn:hover{border-color:var(--em-600);background:var(--em-50)}
 @media (max-width:480px){.hubbtn span{display:none}.hubbtn:after{content:"Hub"}}
+.rptbar{background:var(--em-50);border:1px solid #bfe9d4;border-radius:12px;padding:12px;margin-bottom:14px}
+.rptnote{background:var(--gold-bg);border:1px solid #f1d9a6;border-radius:12px;padding:10px 12px;margin-bottom:14px;font-size:13px}
+.stdc{display:flex;gap:8px;align-items:flex-start;padding:7px 9px;border:1px solid var(--line);border-radius:9px;background:#fff;margin-bottom:6px;font-size:13px;cursor:pointer}
+.stdc input{margin-top:3px}
+.ms{position:relative}.ms .in{padding-right:44px}
+.ms-btn{position:absolute;right:5px;top:5px;bottom:5px;width:34px;border:none;background:var(--em-100);color:var(--em-800);border-radius:8px;cursor:pointer;font-size:14px;font-weight:800}
+.ms-panel{position:absolute;z-index:30;left:0;right:0;top:calc(100% + 4px);background:#fff;border:1px solid var(--line);border-radius:12px;box-shadow:0 12px 30px rgba(20,40,30,.15);max-height:280px;overflow:auto;padding:6px}
+.ms-panel label{display:flex;gap:8px;align-items:center;padding:7px 9px;border-radius:8px;font-size:13px;cursor:pointer}
+.ms-panel label:hover{background:var(--em-50)}
+.tgchips{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
+.rpt-ed td{min-width:110px;white-space:pre-wrap;font-size:12.5px}.rpt-ed td[contenteditable]:focus{outline:2px solid var(--em-600);background:#fff}
 .gbtn{width:100%;justify-content:center;padding:11px;font-size:14.5px;gap:10px}
 .or{display:flex;align-items:center;gap:10px;color:var(--muted);font-size:12.5px;margin:16px 0}
 .or:before,.or:after{content:"";flex:1;height:1px;background:var(--line)}
@@ -264,10 +275,22 @@ const F_KAND = [["tema", "Tema / Bidang", 1], ["tajuk", "Tajuk / Topik", 1], ["s
 const F_AKT = [["induksi", "Set Induksi", 3], ["utama", "Aktiviti Utama", 7], ["penutup", "Penutup", 3]];
 const F_EL = [["bbm", "Bahan Bantu Mengajar (BBM)"], ["emk", "Elemen Merentas Kurikulum (EMK)"], ["nilai", "Nilai Murni"], ["pak21", "PAK-21"], ["kbat", "KBAT / i-Think"], ["pbd", "Pentaksiran (PBD)"], ["strategi", "Strategi / Kaedah"]];
 const AI_KEYS = ["tema", "tajuk", "sk", "sp", "objektif", "kriteria", "induksi", "utama", "penutup", "bbm", "emk", "nilai", "pak21", "kbat", "pbd", "strategi"];
+const PILIHAN = {
+  bbm: ["Buku teks", "Lembaran kerja", "Kad gambar", "Kad perkataan", "Kad imbasan", "Carta / poster", "Video", "Slaid PowerPoint", "Bahan maujud", "Komputer / komputer riba", "Projektor / TV pintar", "Papan putih", "Lagu / audio", "Bahan bacaan tambahan", "Aplikasi digital (Wordwall/Quizizz/Kahoot)", "Google Classroom", "DELIMa / Buku teks digital"],
+  emk: ["Bahasa", "Kelestarian Alam Sekitar", "Nilai Murni", "Sains dan Teknologi", "Patriotisme", "Kreativiti dan Inovasi", "Keusahawanan", "Teknologi Maklumat dan Komunikasi", "Kelestarian Global", "Pendidikan Kewangan"],
+  nilai: ["Kerjasama", "Bertanggungjawab", "Hormat-menghormati", "Kasih sayang", "Baik hati", "Berdikari", "Hemah tinggi", "Keberanian", "Kejujuran", "Kerajinan", "Kesyukuran", "Rasional", "Semangat bermasyarakat", "Toleransi", "Yakin diri", "Patriotisme", "Kebersihan fizikal dan mental"],
+  pak21: ["Think-Pair-Share", "Round Robin", "Round Table", "Gallery Walk", "Hot Seat", "Role Play", "Three Stray One Stay", "Jigsaw", "Mix-Freeze-Pair", "Talking Chips", "Bus Stop", "Stesen Pembelajaran", "Pembelajaran Berasaskan Projek", "Pembelajaran Berasaskan Permainan", "Pembelajaran Koperatif"],
+  kbat: ["Mengaplikasi", "Menganalisis", "Menilai", "Mencipta", "Peta Bulatan", "Peta Buih", "Peta Buih Berganda", "Peta Pokok", "Peta Dakap", "Peta Alir", "Peta Pelbagai Alir", "Peta Titi"],
+  pbd: ["Pemerhatian", "Lisan", "Penulisan", "Lembaran kerja", "Kuiz", "Soal jawab", "Pembentangan", "Hasil kerja", "Projek", "Senarai semak", "Rubrik", "Pentaksiran rakan sebaya"],
+  strategi: ["Berpusatkan murid", "Pembelajaran koperatif", "Pembelajaran kolaboratif", "Pembelajaran kontekstual", "Inkuiri penemuan", "Pembelajaran masteri", "Pembelajaran berasaskan projek", "Didik hibur", "Belajar melalui bermain", "Konstruktivisme", "Pengajaran terbeza (differentiated)", "Demonstrasi", "Simulasi"]
+};
+const SEBAB_TANGGUH = ["Cuti peristiwa", "Cuti umum", "Mesyuarat", "Kursus / bengkel", "Program / aktiviti sekolah", "Guru cuti / cuti sakit", "Guru bertugas di luar", "Murid menyertai aktiviti luar", "Pentaksiran / peperiksaan", "Bencana / cuaca", "Kelas diganti guru lain"];
+const CDN_XLSX = "https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js";
+const CDN_MAMMOTH = "https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js";
 const COLS = ["tarikh", "isnin", "minggu", "mula", "tamat", "subjek", "kelas", ...AI_KEYS, "refleksi", "hadir", "jumlah", "ditangguhkan", "sebab", "status", "log", "guru_nama"];
 
 /* ---------- keadaan ---------- */
-const S = { user: null, profile: null, settings: null, isAdmin: false, aiReady: false, my: [], slots: [], ta: {}, notif: [], pending: 0 };
+const S = { rpt: [], user: null, profile: null, settings: null, isAdmin: false, aiReady: false, my: [], slots: [], ta: {}, notif: [], pending: 0 };
 
 /* ---------- minggu & tarikh akhir ---------- */
 const weekNo = s => Math.round((parse(mondayOf(s)) - parse(mondayOf(S.settings?.mula_minggu1 || "2026-01-12"))) / 6048e5) + 1;
@@ -403,8 +426,9 @@ async function refreshData() {
   const [my, slots, ta] = await Promise.all([
     q(sb.from("rph").select("*").eq("uid", S.user.uid)),
     q(sb.from("slots").select("*").eq("uid", S.user.uid)),
-    q(sb.from("tarikh_akhir").select("*"))
-  ]);
+    q(sb.from("tarikh_akhir").select("*")),
+    q(sb.from("rpt").select("*").eq("uid", S.user.uid).order("subjek"))
+  ]).then(r => { S.rpt = r[3]; return r; });
   S.my = my; S.slots = slots.sort((a, b) => a.hari - b.hari || a.mula.localeCompare(b.mula));
   S.ta = Object.fromEntries(ta.map(t => [t.isnin, t]));
   await refreshPending();
@@ -438,7 +462,7 @@ function renderLogin() {
 
 /* ---------- rangka aplikasi ---------- */
 function navItems() {
-  const g = [["utama", "🏠", "Utama"], ["rph", "📘", "RPH Saya", "bRph"], ["jadual", "🗓️", "Jadual Waktu"]];
+  const g = [["utama", "🏠", "Utama"], ["rph", "📘", "RPH Saya", "bRph"], ["jadual", "🗓️", "Jadual Waktu"], ["rpt", "📑", "RPT Saya"]];
   const a = [["semakan", "✅", "Semakan RPH", "bSem"], ["pantau", "📊", "Pemantauan"], ["tarikh", "⏰", "Tarikh Akhir"], ["guru", "👥", "Senarai Guru"], ["importjadual", "📥", "Import Jadual aSc"], ["tetapan", "⚙️", "Tetapan"]];
   const li = x => `<a href="#/${x[0]}" data-r="${x[0]}"><span class="ic">${x[1]}</span>${x[2]}${x[3] ? `<span class="bdg hidden" id="${x[3]}"></span>` : ""}</a>`;
   return `<div class="grp">Guru</div>${g.map(li).join("")}${S.isAdmin ? `<div class="grp">Pentadbir</div>${a.map(li).join("")}` : ""}`;
@@ -527,7 +551,7 @@ async function route() {
   const v = $("#view"); v.innerHTML = `<div class="muted">Memuatkan…</div>`;
   if (["semakan", "pantau", "tarikh", "guru", "importjadual", "tetapan"].includes(r) && !S.isAdmin) return location.hash = "#/utama";
   try {
-    const V = { utama: vUtama, rph: vRph, jadual: vJadual, edit: vEdit, lihat: vLihat, semakan: vSemakan, pantau: vPantau, tarikh: vTarikh, guru: vGuru, importjadual: vImport, tetapan: vTetapan };
+    const V = { rpt: vRpt, utama: vUtama, rph: vRph, jadual: vJadual, edit: vEdit, lihat: vLihat, semakan: vSemakan, pantau: vPantau, tarikh: vTarikh, guru: vGuru, importjadual: vImport, tetapan: vTetapan };
     await (V[r] || vUtama)(a, b);
   } catch (e) { console.error(e); v.innerHTML = `<div class="card"><b>Ralat:</b> ${esc(e.message)}</div>`; }
   window.scrollTo(0, 0);
@@ -647,26 +671,25 @@ async function vEdit(id) {
      <div class="grid g3" style="gap:12px">
        <div class="fld"><label class="f">Tarikh</label><input class="in" type="date" name="tarikh" value="${esc(ED.tarikh)}" ${ro ? "readonly" : ""} data-chg="tarikh"></div>
        <div class="fld" style="grid-column:span 2"><label class="f">Pilih slot jadual (isi automatik)</label><select class="in" id="slotSel" ${ro ? "disabled" : ""} data-chg="slot"></select></div>
-       <div class="fld"><label class="f">Mata pelajaran</label><input class="in" name="subjek" list="dlSub" value="${esc(ED.subjek)}" ${ro ? "readonly" : ""}></div>
-       <div class="fld"><label class="f">Kelas</label><input class="in" name="kelas" value="${esc(ED.kelas)}" placeholder="cth: Tahun 5 Cemerlang" ${ro ? "readonly" : ""}></div>
+       <div class="fld"><label class="f">Mata pelajaran</label><input class="in" name="subjek" list="dlSub" value="${esc(ED.subjek)}" ${ro ? "readonly" : ""} data-chg="rptRefresh"></div>
+       <div class="fld"><label class="f">Kelas</label><input class="in" name="kelas" value="${esc(ED.kelas)}" placeholder="cth: Tahun 5 Cemerlang" ${ro ? "readonly" : ""} data-chg="rptRefresh"></div>
        <div class="fld"><label class="f">Masa</label><div class="row" style="flex-wrap:nowrap"><input class="in" type="time" name="mula" value="${esc(ED.mula)}" ${ro ? "readonly" : ""}><span>–</span><input class="in" type="time" name="tamat" value="${esc(ED.tamat)}" ${ro ? "readonly" : ""}></div></div>
      </div>
-     <label class="row small" style="gap:8px"><input type="checkbox" name="ditangguhkan" ${ED.ditangguhkan ? "checked" : ""} ${ro ? "disabled" : ""}> Kelas ditangguhkan / tidak berjalan</label>
-     <div class="fld mt ${ED.ditangguhkan ? "" : "hidden"}" id="sebabWrap"><label class="f">Sebab ditangguhkan</label><input class="in" name="sebab" value="${esc(ED.sebab)}" placeholder="cth: Cuti peristiwa, mesyuarat, kursus" ${ro ? "readonly" : ""}></div>
    </div>
-   <div class="card"><div class="section-t">② Kandungan Kurikulum</div><div class="grid g2" style="gap:0 14px">${F_KAND.map(f => inp(...f)).join("")}</div></div>
+   <div class="card"><div class="section-t">② Kandungan Kurikulum</div><div id="rptBar"></div><div class="grid g2" style="gap:0 14px">${F_KAND.map(f => inp(...f)).join("")}</div></div>
    <div class="card"><div class="section-t">③ Aktiviti Pengajaran &amp; Pembelajaran</div>${F_AKT.map(f => inp(...f)).join("")}</div>
-   <div class="card"><div class="section-t">④ Elemen RPH</div><div class="grid g2" style="gap:0 14px">${F_EL.map(f => inp(f[0], f[1], 1)).join("")}</div></div>
+   <div class="card"><div class="section-t">④ Elemen RPH <span class="small muted" style="text-transform:none;letter-spacing:0;font-weight:500">— tekan ▾ untuk pilih, atau taip sendiri</span></div><div class="grid g2" style="gap:0 14px">${F_EL.map(f => msInput(f[0], f[1], ro, ED[f[0]])).join("")}</div></div>
    <div class="card"><div class="section-t">⑤ Refleksi &amp; Kehadiran</div>
      <div class="grid g3" style="gap:12px"><div class="fld"><label class="f">Murid hadir</label><input class="in" name="hadir" inputmode="numeric" value="${esc(ED.hadir)}"></div><div class="fld"><label class="f">Jumlah murid</label><input class="in" name="jumlah" inputmode="numeric" value="${esc(ED.jumlah)}"></div></div>
      <div class="fld"><label class="f">Refleksi / impak (diisi selepas PdP)</label><textarea class="in" name="refleksi" rows="3" placeholder="cth: 24/26 murid mencapai objektif. 2 murid diberi bimbingan tambahan.">${esc(ED.refleksi)}</textarea></div>
+     ${tangguhHtml(ED.ditangguhkan, ED.sebab, "name")}
      ${ro && ED.id && ED.uid === S.user.uid ? `<button class="btn pri" data-act="simpanRefleksi">Simpan refleksi</button>` : ""}
    </div>
    ${ED.log?.length ? `<div class="card"><div class="section-t">Sejarah &amp; Ulasan</div>${logHtml(ED.log)}</div>` : ""}
   </form>
   <datalist id="dlSub">${SUBJEK.map(s => `<option value="${s}">`).join("")}</datalist>`;
   fillSlotSel();
-  $("[name=ditangguhkan]")?.addEventListener("change", e => $("#sebabWrap").classList.toggle("hidden", !e.target.checked));
+  RPTSEL = {}; fillRptBar(!ro && !ED.tajuk && !ED.sk && !ED.sp);
   if (AUTO_AI && !ro) { AUTO_AI = false; setTimeout(openJanaForm, 50); }
 }
 function fillSlotSel() {
@@ -704,12 +727,13 @@ function docHtml(r) {
    <table>
     <tr><th>Mata Pelajaran</th><td>${esc(r.subjek)}</td></tr><tr><th>Kelas</th><td>${esc(r.kelas)}</td></tr>
     <tr><th>Tarikh / Masa</th><td>${fmtT(r.tarikh)} · ${esc(r.mula)} – ${esc(r.tamat)}</td></tr><tr><th>Guru</th><td>${esc(r.guru_nama)}</td></tr>
-    ${r.ditangguhkan ? `<tr><th>Status Kelas</th><td style="color:var(--red);font-weight:700">DITANGGUHKAN — ${esc(r.sebab)}</td></tr>` : ""}
+    ${r.ditangguhkan ? `<tr><th>Status Kelas</th><td style="color:var(--red);font-weight:700">PdP DITANGGUHKAN</td></tr>` : ""}
     ${F_KAND.map(f => row(f[1], r[f[0]])).join("")}
     <tr><th>Aktiviti PdP</th><td class="pre"><b>Set Induksi</b>\n${esc(r.induksi) || "-"}\n\n<b>Aktiviti Utama</b>\n${esc(r.utama) || "-"}\n\n<b>Penutup</b>\n${esc(r.penutup) || "-"}</td></tr>
     ${F_EL.map(f => row(f[1], r[f[0]])).join("")}
     ${row("Kehadiran", r.hadir ? `${r.hadir} / ${r.jumlah || "?"} murid` : "")}
     ${row("Refleksi", r.refleksi)}
+    ${r.ditangguhkan || r.sebab ? row("Catatan (ditangguhkan)", r.sebab || "PdP ditangguhkan") : ""}
    </table>
    <div class="row between mt"><div class="small muted">Dihantar: ${fmtDT(r.dihantar_pada)}${r.lewat ? " (lewat)" : ""}</div>
    ${r.status === "disahkan" ? `<div class="stamp">DISAHKAN · ${esc(r.disahkan_oleh || "")} · ${fmtDT(r.disahkan_pada).split(",")[0]}</div>` : chip(r.status)}</div>
@@ -739,20 +763,21 @@ function openJanaForm() {
     <div class="fld"><label class="f">Kelas</label><input class="in" id="jKel" value="${esc(f.kelas)}"></div>
    </div>
    <div class="fld"><label class="f">Tajuk / topik (kosongkan untuk cadangan AI)</label><input class="in" id="jTaj" value="${esc(f.tajuk)}"></div>
-   <div class="fld"><label class="f">Standard kandungan / pembelajaran (pilihan)</label><textarea class="in" id="jSk" rows="2">${esc([f.sk, f.sp].filter(Boolean).join("\n"))}</textarea></div>
+   <div class="grid g2" style="gap:0 12px"><div class="fld"><label class="f">Standard Kandungan</label><textarea class="in" id="jSk" rows="2">${esc(f.sk)}</textarea></div><div class="fld"><label class="f">Standard Pembelajaran</label><textarea class="in" id="jSp" rows="2">${esc(f.sp)}</textarea></div></div>
+   ${f.sk || f.sp ? `<div class="small muted" style="margin:-4px 0 10px">📑 Kandungan kurikulum (tema, tajuk, SK, SP) dikekalkan. AI menjana objektif, kriteria kejayaan, aktiviti dan elemen RPH.</div>` : ""}
    <div class="fld"><label class="f">Catatan untuk AI (pilihan)</label><input class="in" id="jCat" placeholder="cth: kelas lemah, guna permainan bahasa, ada murid pemulihan"></div>
    <div class="fld"><label class="f">Gaya</label><select class="in" id="jGaya"><option value="terperinci">Terperinci</option><option value="ringkas">Ringkas</option></select></div>
-   <label class="row small"><input type="checkbox" id="jOver" checked> Ganti medan yang sudah diisi</label>`,
+   <label class="row small"><input type="checkbox" id="jOver" checked> Ganti objektif, kriteria &amp; aktiviti yang sudah diisi <span class="muted">(elemen yang dipilih guru dikekalkan)</span></label>`,
     `<button class="btn" data-act="mclose">Batal</button><button class="btn ai" id="jGo">✦ Jana sekarang</button>`);
   $("#jGo").onclick = async () => {
     const b = $("#jGo"); b.disabled = true; b.innerHTML = `<span class="spin"></span> Menjana…`;
-    const skp = $("#jSk").value.split("\n");
-    const req = { ...f, subjek: $("#jSub").value, kelas: $("#jKel").value, tajuk: $("#jTaj").value, sk: skp[0] || "", sp: skp.slice(1).join("\n") };
+    const req = { ...f, subjek: $("#jSub").value, kelas: $("#jKel").value, tajuk: $("#jTaj").value, sk: $("#jSk").value.trim(), sp: $("#jSp").value.trim() };
     try {
       const out = await aiGenerate(req, { catatan: $("#jCat").value, gaya: $("#jGaya").value });
       const over = $("#jOver").checked; closeModal();
       $("[name=subjek]").value = req.subjek; $("[name=kelas]").value = req.kelas;
-      for (const k of AI_KEYS) { const el = $(`[name=${k}]`); if (el && (over || !el.value.trim())) el.value = out[k] || el.value; }
+      if (req.sk) out.sk = req.sk; if (req.sp) out.sp = req.sp; if (req.tajuk) out.tajuk = req.tajuk;
+      for (const k of AI_KEYS) { const el = $(`[name=${k}]`); const kekal = ["tema", "tajuk", "sk", "sp", ...F_EL.map(f => f[0])].includes(k) && el?.value.trim(); if (el && !kekal && (over || !el.value.trim())) el.value = out[k] || el.value; }
       toast(S.aiReady ? "RPH dijana! Semak sebelum simpan." : "Kandungan contoh diisi. Semak & ubah suai.");
     } catch (e) { b.disabled = false; b.textContent = "✦ Cuba lagi"; toast("Gagal menjana: " + e.message, true); }
   };
@@ -765,7 +790,7 @@ function openJanaSehari(d) {
   const draw = () => {
     const dd = $("#jsD").value, sl = slotsFor(dd);
     $("#jsRows").innerHTML = sl.length ? sl.map(s => { const ex = findRph(dd, s); return `<div class="item" style="flex-wrap:wrap"><input type="checkbox" class="jsC" data-s="${s.id}" ${ex ? "disabled" : "checked"}><span class="tm">${s.mula}–${s.tamat}</span><div class="grow" style="min-width:150px"><b>${esc(s.subjek)}</b><span class="small muted">${esc(s.kelas)}</span></div>
-      ${ex ? chip(ex.status) + `<span class="small muted">sudah ada</span>` : `<input class="in jsT" data-s="${s.id}" style="flex:2;min-width:200px" placeholder="Tajuk (kosong = AI cadang)${lastTajuk(s) ? " · lepas: " + esc(lastTajuk(s)) : ""}">`}</div>`; }).join("")
+      ${ex ? chip(ex.status) + `<span class="small muted">sudah ada</span>` : (() => { const g = rptAuto(dd, s); return `<div style="flex:2;min-width:200px"><input class="in jsT" data-s="${s.id}" placeholder="${g ? "Tajuk ikut RPT (biar kosong) atau taip lain" : "Tajuk (kosong = AI cadang)" + (lastTajuk(s) ? " · lepas: " + esc(lastTajuk(s)) : "")}">${g ? `<div class="small" style="color:var(--em-700);margin-top:3px">📑 RPT M${esc(g.row.minggu)} · ${esc(g.row.tajuk || g.row.tema)}${g.sp ? ` · SP ${esc(g.sp.split(" ")[0])}` : ""}</div>` : `<div class="small muted" style="margin-top:3px">Tiada RPT ${esc(s.subjek)} Tahun ${tahunDari(s.kelas)}</div>`}</div>`; })()}</div>`; }).join("")
       : `<div class="empty">Tiada slot jadual pada ${HARI[parse(dd).getDay()]}. <a href="#/jadual">Isi jadual waktu</a>.</div>`;
   };
   modal("✦ Jana RPH Sehari (Automasi)", `<p class="small muted" style="margin-top:0">Sistem membaca jadual waktu anda dan menjana RPH bagi setiap kelas pada tarikh dipilih. RPH disimpan sebagai <b>draf</b> untuk disemak.</p>${aiNote()}
@@ -785,9 +810,12 @@ function openJanaSehari(d) {
     for (let i = 0; i < pick.length; i++) {
       const s = pick[i]; $("#jsMsg").textContent = `(${i + 1}/${pick.length}) ${s.subjek} · ${s.kelas}…`;
       const base = { tarikh: dd, mula: s.mula, tamat: s.tamat, subjek: s.subjek, kelas: s.kelas, tajuk: $(`.jsT[data-s="${s.id}"]`)?.value.trim() || "" };
+      const g = !base.tajuk && rptAuto(dd, s);
+      if (g) Object.assign(base, { tema: g.row.tema || "", tajuk: g.row.tajuk || g.row.tema || "", sk: g.sk, sp: g.sp });
       try {
         const out = await aiGenerate(base, { catatan: $("#jsCat").value });
-        if (await saveRph({ ...base, ...out, tajuk: base.tajuk || out.tajuk, status: "draf", log: [], refleksi: "" }, send ? "dihantar" : "draf")) ok++;
+        const kand = g ? { tema: base.tema || out.tema, sk: base.sk || out.sk, sp: base.sp || out.sp } : {};
+        if (await saveRph({ ...base, ...out, ...kand, tajuk: base.tajuk || out.tajuk, status: "draf", log: [], refleksi: "" }, send ? "dihantar" : "draf")) ok++;
       } catch (e) { toast(`${s.subjek}: ${e.message}`, true); }
       $("#jsBar").style.width = `${((i + 1) / pick.length) * 100}%`;
     }
@@ -1084,16 +1112,17 @@ const ACT = {
     location.hash = d.s === "dihantar" ? `#/rph/${r.isnin}` : `#/edit/${r.id}`;
   },
   async simpanRefleksi() {
-    const f = readForm(), p = { refleksi: f.refleksi, hadir: f.hadir, jumlah: f.jumlah };
+    const f = readForm(), p = { refleksi: f.refleksi, hadir: f.hadir, jumlah: f.jumlah, ditangguhkan: !!f.ditangguhkan, sebab: f.sebab };
     await q(sb.from("rph").update(p).eq("id", ED.id)); Object.assign(S.my.find(r => r.id === ED.id) || {}, p); toast("Refleksi disimpan.");
   },
   refleksi(d) {
     const r = S.my.find(x => x.id === d.id);
     modal(`Refleksi · ${esc(r.subjek)} ${esc(r.kelas)} (${fmtTs(r.tarikh)})`, `<div class="grid g2" style="gap:12px"><div><label class="f">Murid hadir</label><input class="in" id="rfH" value="${esc(r.hadir)}"></div><div><label class="f">Jumlah murid</label><input class="in" id="rfJ" value="${esc(r.jumlah)}"></div></div>
       <div class="fld mt"><label class="f">Refleksi</label><textarea class="in" id="rfT" rows="4" placeholder="cth: 24/26 murid mencapai objektif…">${esc(r.refleksi)}</textarea></div>
+      ${tangguhHtml(r.ditangguhkan, r.sebab, "id")}
       <div class="row small muted">Pantas: ${["Semua murid mencapai objektif.", "Sebahagian murid perlu bimbingan lanjut.", "PdP ditangguhkan."].map(t => `<button class="btn sm" data-act="rfT" data-t="${t}">${t}</button>`).join("")}</div>`,
       `<button class="btn" data-act="mclose">Batal</button><button class="btn pri" id="rfGo">Simpan</button>`);
-    $("#rfGo").onclick = async () => { const p = { refleksi: $("#rfT").value.trim(), hadir: $("#rfH").value.trim(), jumlah: $("#rfJ").value.trim() }; await q(sb.from("rph").update(p).eq("id", r.id)); Object.assign(r, p); closeModal(); toast("Refleksi disimpan."); route(); };
+    $("#rfGo").onclick = async () => { const p = { refleksi: $("#rfT").value.trim(), hadir: $("#rfH").value.trim(), jumlah: $("#rfJ").value.trim(), ditangguhkan: $("#tgC").checked, sebab: $("#tgS").value.trim() }; await q(sb.from("rph").update(p).eq("id", r.id)); Object.assign(r, p); closeModal(); toast("Refleksi disimpan."); route(); };
   },
   rfT(d) { $("#rfT").value = d.t; },
   async hantar(d) {
@@ -1228,8 +1257,8 @@ const ACT = {
   }
 };
 const CHG = {
-  tarikh() { fillSlotSel(); },
-  slot(el) { const s = S.slots.find(x => x.id === el.value); if (!s) return; $("[name=mula]").value = s.mula; $("[name=tamat]").value = s.tamat; $("[name=subjek]").value = s.subjek; $("[name=kelas]").value = s.kelas; },
+  tarikh() { fillSlotSel(); RPTSEL = {}; fillRptBar(!kandunganAda()); },
+  slot(el) { const s = S.slots.find(x => x.id === el.value); if (!s) return; $("[name=mula]").value = s.mula; $("[name=tamat]").value = s.tamat; $("[name=subjek]").value = s.subjek; $("[name=kelas]").value = s.kelas; RPTSEL = {}; fillRptBar(!kandunganAda()); },
   semF() { SEM.guru = $("#fGuru").value; SEM.st = $("#fSt").value; vSemakan(SEM.w); },
   selAll(el) { $$(".semC").forEach(c => c.checked = el.checked); },
   async jawatan(el) { await q(sb.from("profiles").update({ jawatan: el.value.trim() }).eq("id", el.dataset.id)); toast("Jawatan dikemas kini."); }
@@ -1414,6 +1443,240 @@ function drawGuruPrev(done) {
     </tbody></table></div>`;
 }
 Object.assign(CHG, { async guruCsv(el) { const f = el.files[0]; if (!f) return; await previewGuru(await f.text()); el.value = ""; } });
+
+/* ---------- elemen (dropdown pelbagai pilihan) & penangguhan ---------- */
+const splitVals = v => String(v || "").split(/\s*[,;]\s*/).map(x => x.trim()).filter(Boolean);
+function msInput(k, lbl, ro, val) {
+  return `<div class="fld"><label class="f">${lbl}</label><div class="ms"><input class="in" name="${k}" value="${esc(val)}" ${ro ? "readonly" : ""} autocomplete="off">${ro ? "" : `<button type="button" class="ms-btn" data-act="msOpen" data-k="${k}" title="Pilih daripada senarai">▾</button><div class="ms-panel hidden" id="ms_${k}"></div>`}</div></div>`;
+}
+function tangguhHtml(on, sebab, mode) {
+  const a = mode === "name" ? ['name="ditangguhkan"', 'name="sebab"'] : ['id="tgC"', 'id="tgS"'];
+  return `<div class="fld tgwrap"><label class="row small" style="gap:8px;font-weight:700"><input type="checkbox" ${a[0]} ${on ? "checked" : ""}> PdP tidak dapat dilaksanakan / ditangguhkan</label>
+    <label class="f" style="margin-top:8px">Catatan (jika ditangguhkan)</label>
+    <textarea class="in tgS" ${a[1]} rows="2" placeholder="Nyatakan sebab PdP tidak dapat berlangsung, cth: Cuti peristiwa sempena Hari Deepavali.">${esc(sebab)}</textarea>
+    <div class="tgchips">${SEBAB_TANGGUH.map(x => `<button type="button" class="btn sm" data-act="tgPilih" data-t="${esc(x)}">${esc(x)}</button>`).join("")}</div></div>`;
+}
+document.addEventListener("click", e => { if (!e.target.closest(".ms")) $$(".ms-panel").forEach(p => p.classList.add("hidden")); });
+
+/* ---------- RPT: padanan dengan RPH ---------- */
+let RPTSEL = {};
+const lines = v => String(v || "").split(/\n+/).map(x => x.trim()).filter(Boolean);
+const normS = v => String(v || "").toLowerCase().replace(/\s+/g, " ").trim();
+const rptFor = (sub, kel) => { const t = tahunDari(kel); return S.rpt.filter(r => normS(r.subjek) === normS(sub) && String(r.tahun) === t); };
+function weekNums(m) {
+  const s = String(m || "").split(/[(\[]/)[0], n = (s.match(/\d+/g) || []).map(Number).filter(x => x < 60);
+  if (n.length >= 2 && /[-–]|hingga|sehingga/.test(s) && n[1] > n[0]) return Array.from({ length: n[1] - n[0] + 1 }, (_, i) => n[0] + i);
+  return n.slice(0, 1);
+}
+function rptGuess(sub, kel, tar) {
+  const R = rptFor(sub, kel)[0]; if (!R || !tar) return null;
+  let i = R.baris.findIndex(b => weekNums(b.minggu).includes(weekNo(tar)));
+  if (i < 0) {
+    const prev = S.my.filter(r => r.subjek === sub && r.kelas === kel && r.tarikh < tar && r.tajuk).sort((a, b) => b.tarikh.localeCompare(a.tarikh))[0];
+    const j = prev ? R.baris.findIndex(b => b.tajuk && b.tajuk === prev.tajuk) : -1;
+    if (j >= 0) i = Math.min(j + (mondayOf(prev.tarikh) === mondayOf(tar) ? 0 : 1), R.baris.length - 1);
+  }
+  return i >= 0 ? { R, i } : null;
+}
+function spIndex(sub, kel, tar, mula) {
+  const same = S.slots.filter(s => s.subjek === sub && s.kelas === kel).sort((a, b) => a.hari - b.hari || a.mula.localeCompare(b.mula));
+  const k = same.findIndex(s => s.hari === parse(tar).getDay() && s.mula === mula);
+  return k < 0 ? 0 : k;
+}
+function skForSp(sks, sp) {
+  const m = String(sp || "").match(/^\s*(\d+)\.(\d+)/); if (!m) return sks;
+  const f = sks.filter(x => new RegExp(`^\\s*${m[1]}\\.${m[2]}(?!\\d)`).test(x));
+  return f.length ? f : sks;
+}
+function rptAuto(tar, slot) {
+  const g = rptGuess(slot.subjek, slot.kelas, tar); if (!g) return null;
+  const row = g.R.baris[g.i], sps = lines(row.sp), sp = sps.length ? sps[spIndex(slot.subjek, slot.kelas, tar, slot.mula) % sps.length] : "";
+  return { R: g.R, i: g.i, row, sp, sk: skForSp(lines(row.sk), sp).join("\n") };
+}
+const kandunganAda = () => ["tajuk", "sk", "sp"].some(k => $(`[name=${k}]`)?.value.trim());
+function fillRptBar(apply) {
+  const bar = $("#rptBar"); if (!bar) return;
+  if ($("[name=tajuk]")?.readOnly) { bar.innerHTML = ""; return; }
+  const sub = $("[name=subjek]").value.trim(), kel = $("[name=kelas]").value.trim(), tar = $("[name=tarikh]").value;
+  if (!sub || !kel) { bar.innerHTML = `<div class="rptnote">📑 Pilih slot jadual (atau isi mata pelajaran &amp; kelas) untuk memilih kandungan daripada RPT anda.</div>`; return; }
+  const list = rptFor(sub, kel);
+  if (!list.length) { bar.innerHTML = `<div class="rptnote">📑 Tiada RPT untuk <b>${esc(sub)} Tahun ${tahunDari(kel) || "?"}</b>. <a href="#/rpt">Muat naik RPT</a> supaya tema, tajuk, SK dan SP boleh dipilih daripada senarai.</div>`; return; }
+  const g = rptGuess(sub, kel, tar);
+  const R = list.find(x => x.id === RPTSEL.rid) || g?.R || list[0];
+  let idx = RPTSEL.rid === R.id && RPTSEL.i != null ? RPTSEL.i : -1;
+  if (idx < 0) { const cur = $("[name=tajuk]").value.trim(); idx = cur ? R.baris.findIndex(b => b.tajuk === cur) : -1; }
+  if (idx < 0 && apply && g?.R.id === R.id) idx = g.i;
+  RPTSEL = { rid: R.id, i: idx >= 0 ? idx : null };
+  bar.innerHTML = `<div class="rptbar"><div class="row" style="gap:10px;align-items:flex-end">
+    ${list.length > 1 ? `<div><label class="f">RPT</label><select class="in" data-chg="rptPilih">${list.map(x => `<option value="${x.id}" ${x.id === R.id ? "selected" : ""}>${esc(x.nama_fail || x.subjek)}</option>`).join("")}</select></div>` : ""}
+    <div style="flex:1;min-width:220px"><label class="f">📑 Pilih daripada RPT ${esc(R.subjek)} Tahun ${esc(R.tahun)} <span class="muted" style="font-weight:500">· tarikh ini = Minggu ${tar ? weekNo(tar) : "?"}</span></label>
+    <select class="in" data-chg="rptBaris"><option value="">— Pilih minggu / tajuk —</option>${R.baris.map((b, i) => `<option value="${i}" ${i === idx ? "selected" : ""}>${b.minggu ? `M${esc(b.minggu)} · ` : ""}${esc(b.tajuk || b.tema || "(tiada tajuk)")}${b.tema && b.tajuk ? ` — ${esc(b.tema)}` : ""}</option>`).join("")}</select></div></div>
+    <div id="rptStd"></div></div>`;
+  drawStd(apply && idx >= 0);
+}
+function drawStd(apply) {
+  const box = $("#rptStd"); if (!box) return;
+  const R = S.rpt.find(x => x.id === RPTSEL.rid), b = R?.baris[RPTSEL.i];
+  if (!b) { box.innerHTML = ""; return; }
+  const sks = lines(b.sk), sps = lines(b.sp);
+  let selSk, selSp;
+  if (apply) {
+    const sp = sps.length ? sps[spIndex($("[name=subjek]").value, $("[name=kelas]").value, $("[name=tarikh]").value, $("[name=mula]").value) % sps.length] : "";
+    selSp = sp ? [sp] : []; selSk = skForSp(sks, sp);
+    $("[name=tema]").value = b.tema || ""; $("[name=tajuk]").value = b.tajuk || b.tema || "";
+    $("[name=sk]").value = selSk.join("\n"); $("[name=sp]").value = selSp.join("\n");
+  } else {
+    const cs = lines($("[name=sk]").value), cp = lines($("[name=sp]").value);
+    selSk = sks.filter(x => cs.includes(x)); selSp = sps.filter(x => cp.includes(x));
+  }
+  const chk = (k, x, sel) => `<label class="stdc"><input type="checkbox" data-chg="stdChk" data-k="${k}" value="${esc(x)}" ${sel.includes(x) ? "checked" : ""}><span>${esc(x)}</span></label>`;
+  box.innerHTML = `<div class="grid g2 mt" style="gap:12px">
+    <div><label class="f">Standard Kandungan <span class="muted" style="font-weight:500">(tanda yang digunakan)</span></label>${sks.map(x => chk("sk", x, selSk)).join("") || `<div class="small muted">Tiada SK dalam baris ini.</div>`}</div>
+    <div><label class="f">Standard Pembelajaran <span class="muted" style="font-weight:500">(tanda yang digunakan)</span></label>${sps.map(x => chk("sp", x, selSp)).join("") || `<div class="small muted">Tiada SP dalam baris ini.</div>`}</div></div>
+    <div class="small muted mt">Selepas memilih, tekan <b>✦ Jana dengan AI</b> untuk menjana objektif, kriteria kejayaan, aktiviti dan elemen berdasarkan SK/SP ini.</div>`;
+}
+
+/* ---------- RPT SAYA ---------- */
+const loadScript = src => new Promise((ok, no) => { if ([...document.scripts].some(s => s.src === src)) return ok(); const s = document.createElement("script"); s.src = src; s.onload = ok; s.onerror = () => no(new Error("Gagal memuatkan pustaka " + src.split("/").pop())); document.head.append(s); });
+const toB64 = f => new Promise((ok, no) => { const r = new FileReader(); r.onload = () => ok(String(r.result).split(",")[1]); r.onerror = no; r.readAsDataURL(f); });
+function detectTable(aoa) {
+  const C = v => String(v ?? "").replace(/\s+/g, " ").trim();
+  for (let h = 0; h < Math.min(aoa.length, 25); h++) {
+    const hd = aoa[h].map(x => C(x).toLowerCase()), f = re => hd.findIndex(x => re.test(x));
+    const sk = f(/standard\s*kandungan|content\s*standard|^s\.?k\.?$/), sp = f(/standard\s*pembelajaran|learning\s*standard|^s\.?p\.?$/);
+    if (sk < 0 || sp < 0) continue;
+    const mg = f(/minggu|week|^m$/), tj = f(/tajuk|topik|topic|unit|title/); let tm = f(/tema|bidang|modul|theme|kemahiran|module/);
+    if (tm === tj) tm = -1;
+    const out = []; let cur = null, lastTema = "";
+    for (const r of aoa.slice(h + 1)) {
+      const g = i => i >= 0 ? C(r[i]) : "", m = g(mg), t = g(tj), e = g(tm), a = String(r[sk] ?? "").trim(), b = String(r[sp] ?? "").trim();
+      if (!m && !t && !e && !a && !b) continue;
+      if (e) lastTema = e;
+      if (m || (!cur && (t || a || b)) || (t && cur && cur.tajuk && t !== cur.tajuk)) { cur = { minggu: m || (cur ? cur.minggu : ""), tema: e || lastTema, tajuk: t, sk: a, sp: b }; out.push(cur); }
+      else { if (t && !cur.tajuk) cur.tajuk = t; if (a) cur.sk = [cur.sk, a].filter(Boolean).join("\n"); if (b) cur.sp = [cur.sp, b].filter(Boolean).join("\n"); }
+    }
+    const ok = out.filter(x => x.sk || x.sp || x.tajuk);
+    if (ok.length) return ok;
+  }
+  return null;
+}
+async function aiRpt(subjek, tahun, teks, fail) {
+  if (!S.aiReady) throw new Error("Fail ini perlu dibaca oleh AI, tetapi AI belum diaktifkan. Minta pentadbir aktifkan AI, atau muat naik RPT dalam format Excel/CSV.");
+  const prompt = `Anda membaca Rancangan Pengajaran Tahunan (RPT) KSSR sekolah rendah Malaysia bagi ${subjek} Tahun ${tahun}.
+Ekstrak SETIAP baris pengajaran mengikut minggu. Salin tepat — JANGAN reka kandungan.
+Pulangkan JSON SAHAJA: {"baris":[{"minggu":"","tema":"","tajuk":"","sk":"","sp":""}]}
+- minggu: nombor minggu seperti dalam RPT (cth "1" atau julat "3-4"). Kosong jika tiada.
+- tema: tema / bidang / modul / kemahiran.
+- tajuk: tajuk / unit / topik.
+- sk: SEMUA standard kandungan minggu itu, satu setiap baris (\\n), kekalkan nombor (cth "1.1 Mendengar dan memberikan respons").
+- sp: SEMUA standard pembelajaran minggu itu, satu setiap baris (\\n), kekalkan nombor dan ayat penuh.
+- Minggu cuti / pentaksiran / program: masukkan sebagai baris dengan tajuk seperti dalam RPT (cth "CUTI PERTENGAHAN PENGGAL"), sk dan sp kosong.
+${teks ? "\nKANDUNGAN RPT:\n" + teks.slice(0, 280000) : ""}`;
+  const { data, error } = await sb.functions.invoke("jana-rph", { body: { prompt, fail } });
+  if (error) throw new Error(error.message);
+  if (data?.tiada_kunci) throw new Error("AI belum diaktifkan.");
+  if (data?.error) throw new Error(data.error);
+  const t = String(data.text || ""), o = JSON.parse(t.slice(t.indexOf("{"), t.lastIndexOf("}") + 1));
+  const b = (o.baris || []).map(x => ({ minggu: String(x.minggu ?? ""), tema: String(x.tema ?? ""), tajuk: String(x.tajuk ?? ""), sk: Array.isArray(x.sk) ? x.sk.join("\n") : String(x.sk ?? ""), sp: Array.isArray(x.sp) ? x.sp.join("\n") : String(x.sp ?? "") }));
+  if (!b.length) throw new Error("AI tidak menjumpai baris RPT dalam fail ini.");
+  return b;
+}
+async function bacaRptFail(file, subjek, tahun, msg) {
+  const ext = file.name.split(".").pop().toLowerCase();
+  if (file.size > 10 * 1024 * 1024) throw new Error("Fail melebihi 10MB.");
+  let aoa = null;
+  if (["xlsx", "xls", "xlsm", "ods"].includes(ext)) {
+    msg("Membaca Excel…"); await loadScript(CDN_XLSX);
+    const wb = XLSX.read(await file.arrayBuffer(), { type: "array" });
+    aoa = wb.SheetNames.flatMap(n => XLSX.utils.sheet_to_json(wb.Sheets[n], { header: 1, defval: "", raw: false }));
+  } else if (["csv", "tsv", "txt"].includes(ext)) {
+    aoa = parseCsv(await file.text());
+  } else if (ext === "docx") {
+    msg("Membaca Word…"); await loadScript(CDN_MAMMOTH);
+    const { value } = await mammoth.convertToHtml({ arrayBuffer: await file.arrayBuffer() });
+    const d = new DOMParser().parseFromString(value, "text/html");
+    aoa = [...d.querySelectorAll("tr")].map(tr => [...tr.children].map(td => [...td.querySelectorAll("p,li")].map(p => p.textContent.trim()).filter(Boolean).join("\n") || td.textContent.trim()));
+    if (!aoa.length) { msg("AI sedang membaca RPT…"); return aiRpt(subjek, tahun, d.body.innerText); }
+  } else if (ext === "pdf" || ["png", "jpg", "jpeg", "webp"].includes(ext)) {
+    msg("AI sedang membaca RPT (boleh mengambil masa 30–90 saat)…");
+    return aiRpt(subjek, tahun, "", { mime: ext === "pdf" ? "application/pdf" : `image/${ext === "jpg" ? "jpeg" : ext}`, data: await toB64(file) });
+  } else throw new Error("Format tidak disokong. Gunakan Excel, CSV, Word (.docx), PDF atau gambar.");
+  const rows = detectTable(aoa);
+  if (rows) return rows;
+  msg("Lajur SK/SP tidak dikenal pasti — AI sedang membaca RPT…");
+  return aiRpt(subjek, tahun, aoa.map(r => r.map(c => String(c).replace(/\n/g, " / ")).join(" | ")).join("\n"));
+}
+function rptEditor(rec) {
+  const row = (b, i) => `<tr data-i="${i}"><td contenteditable>${esc(b.minggu)}</td><td contenteditable>${esc(b.tema)}</td><td contenteditable>${esc(b.tajuk)}</td><td contenteditable style="min-width:200px">${esc(b.sk)}</td><td contenteditable style="min-width:240px">${esc(b.sp)}</td><td><button class="btn sm" type="button" data-act="rptDelRow">✕</button></td></tr>`;
+  modal(`📑 ${rec.id ? "Sunting" : "Semak"} RPT · ${esc(rec.subjek)} Tahun ${esc(rec.tahun)}`, `
+    <p class="small muted" style="margin-top:0">${rec.baris.length} baris${rec.nama_fail ? ` daripada <b>${esc(rec.nama_fail)}</b>` : ""}. Klik mana-mana sel untuk membetulkan. SK dan SP — satu item setiap baris.</p>
+    <div class="grid g2" style="gap:0 12px"><div class="fld"><label class="f">Mata pelajaran</label><input class="in" id="reSub" list="dlSubR" value="${esc(rec.subjek)}"></div>
+    <div class="fld"><label class="f">Tahun</label><select class="in" id="reThn">${[1, 2, 3, 4, 5, 6].map(t => `<option ${String(t) === String(rec.tahun) ? "selected" : ""}>${t}</option>`).join("")}</select></div></div>
+    <div class="tw rpt-ed" style="max-height:55vh"><table class="t"><thead><tr><th>Minggu</th><th>Tema / Bidang</th><th>Tajuk</th><th>Standard Kandungan</th><th>Standard Pembelajaran</th><th></th></tr></thead>
+    <tbody id="reBody">${rec.baris.map(row).join("")}</tbody></table></div>
+    <button class="btn sm mt" type="button" data-act="rptAddRow">＋ Tambah baris</button>
+    <datalist id="dlSubR">${SUBJEK.map(s => `<option value="${s}">`).join("")}</datalist>`,
+    `<button class="btn" data-act="mclose">Batal</button><button class="btn pri" id="reSave">💾 Simpan RPT</button>`, true);
+  $("#reSave").onclick = async () => {
+    const baris = $$("#reBody tr").map(tr => { const c = [...tr.children].map(td => td.innerText.trim()); return { minggu: c[0], tema: c[1], tajuk: c[2], sk: c[3], sp: c[4] }; }).filter(b => b.tajuk || b.sk || b.sp || b.tema);
+    const data = { subjek: $("#reSub").value.trim(), tahun: $("#reThn").value, nama_fail: rec.nama_fail || "", baris, dikemaskini: new Date().toISOString() };
+    if (!data.subjek) return toast("Isi mata pelajaran.", true);
+    try {
+      const out = rec.id ? await q(sb.from("rpt").update(data).eq("id", rec.id).select().single()) : await q(sb.from("rpt").insert(data).select().single());
+      S.rpt = [...S.rpt.filter(x => x.id !== out.id), out].sort((a, b) => a.subjek.localeCompare(b.subjek) || a.tahun.localeCompare(b.tahun));
+      closeModal(); toast(`RPT ${out.subjek} Tahun ${out.tahun} disimpan (${baris.length} baris).`); if (location.hash.startsWith("#/rpt")) vRpt();
+    } catch (e) { toast(e.message, true); }
+  };
+}
+async function vRpt() {
+  setTitle("RPT Saya");
+  const perlu = [...new Map(S.slots.map(s => [normS(s.subjek) + "|" + tahunDari(s.kelas), { subjek: s.subjek, tahun: tahunDari(s.kelas) }])).values()]
+    .filter(x => x.tahun && !rptFor(x.subjek, "Tahun " + x.tahun).length);
+  $("#view").innerHTML = `
+   <div class="card"><h3>⬆️ Muat naik RPT</h3>
+    <p class="small muted" style="margin-top:0">RPT digunakan dalam borang RPH: tema, tajuk, SK dan SP boleh dipilih daripada senarai, dan <b>Jana RPH Sehari</b> akan memilih minggu yang betul secara automatik.</p>
+    <div class="row" style="align-items:flex-end">
+      <div style="flex:1;min-width:200px"><label class="f">Mata pelajaran</label><input class="in" id="rpSub" list="dlSubR2" placeholder="Bahasa Melayu" value="${esc(perlu[0]?.subjek || "")}"></div>
+      <div><label class="f">Tahun</label><select class="in" id="rpThn">${[1, 2, 3, 4, 5, 6].map(t => `<option ${String(t) === perlu[0]?.tahun ? "selected" : ""}>${t}</option>`).join("")}</select></div>
+      <label class="btn pri">📄 Pilih fail RPT<input type="file" hidden accept=".xlsx,.xls,.csv,.docx,.pdf,.png,.jpg,.jpeg" data-chg="rptFile"></label>
+    </div>
+    <div class="small muted mt">Format: <b>Excel / CSV</b> (dibaca terus — lajur Minggu, Tema, Tajuk, Standard Kandungan, Standard Pembelajaran) · <b>Word / PDF / gambar</b> (dibaca oleh AI${S.aiReady ? "" : " — <span style='color:var(--red)'>AI belum diaktifkan</span>"}). Hasil boleh disemak &amp; dibetulkan sebelum disimpan.</div>
+    <div class="small mt" id="rpMsg"></div>
+    ${perlu.length ? `<div class="mt small"><b>Belum ada RPT untuk kelas anda:</b> ${perlu.map(x => `<button class="btn sm" data-act="rptIsi" data-s="${esc(x.subjek)}" data-t="${x.tahun}">${esc(x.subjek)} T${x.tahun}</button>`).join(" ")}</div>` : ""}
+    <datalist id="dlSubR2">${[...new Set([...S.slots.map(s => s.subjek), ...SUBJEK])].map(s => `<option value="${esc(s)}">`).join("")}</datalist></div>
+   <div class="grid g3 mt">${S.rpt.map(r => `<div class="card"><h3 style="margin-bottom:4px">📑 ${esc(r.subjek)}</h3><div class="row" style="gap:6px"><span class="chip c-green">Tahun ${esc(r.tahun)}</span><span class="chip c-grey">${r.baris.length} baris</span></div>
+      <div class="small muted mt">${esc(r.nama_fail || "")}<br>Dikemas kini ${fmtDT(r.dikemaskini)}</div>
+      <div class="row mt"><button class="btn sm" data-act="rptLihat" data-id="${r.id}">Lihat / sunting</button><button class="btn sm" data-act="rptPadam" data-id="${r.id}">🗑</button></div></div>`).join("") || `<div class="empty" style="grid-column:1/-1">Belum ada RPT dimuat naik.</div>`}</div>`;
+}
+Object.assign(ACT, {
+  msOpen(d) {
+    const p = $(`#ms_${d.k}`), inp = $(`[name=${d.k}]`), cur = splitVals(inp.value);
+    const was = !p.classList.contains("hidden"); $$(".ms-panel").forEach(x => x.classList.add("hidden")); if (was) return;
+    const items = [...cur.filter(v => !PILIHAN[d.k].includes(v)), ...PILIHAN[d.k]];
+    p.innerHTML = items.map(v => `<label><input type="checkbox" data-chg="msChk" data-k="${d.k}" value="${esc(v)}" ${cur.includes(v) ? "checked" : ""}>${esc(v)}</label>`).join("");
+    p.classList.remove("hidden");
+  },
+  tgPilih(d, b) { const w = b.closest(".tgwrap"), t = w.querySelector(".tgS"); t.value = t.value.trim() ? t.value.trim() + "; " + d.t : d.t; w.querySelector("input[type=checkbox]").checked = true; },
+  rptIsi(d) { $("#rpSub").value = d.s; $("#rpThn").value = d.t; },
+  rptLihat(d) { rptEditor(clean(S.rpt.find(x => x.id === d.id))); },
+  async rptPadam(d) { if (!await confirmBox("Padam RPT ini? RPH yang telah dibina tidak terjejas.")) return; await q(sb.from("rpt").delete().eq("id", d.id)); S.rpt = S.rpt.filter(x => x.id !== d.id); toast("RPT dipadam."); vRpt(); },
+  rptDelRow(d, b) { b.closest("tr").remove(); },
+  rptAddRow() { $("#reBody").insertAdjacentHTML("beforeend", `<tr><td contenteditable></td><td contenteditable></td><td contenteditable></td><td contenteditable style="min-width:200px"></td><td contenteditable style="min-width:240px"></td><td><button class="btn sm" type="button" data-act="rptDelRow">✕</button></td></tr>`); }
+});
+Object.assign(CHG, {
+  msChk(el) { const inp = $(`[name=${el.dataset.k}]`); let v = splitVals(inp.value); v = el.checked ? [...v.filter(x => x !== el.value), el.value] : v.filter(x => x !== el.value); inp.value = v.join(", "); },
+  stdChk(el) { $(`[name=${el.dataset.k}]`).value = $$(`[data-chg=stdChk][data-k=${el.dataset.k}]:checked`).map(c => c.value).join("\n"); },
+  rptBaris(el) { RPTSEL.i = el.value === "" ? null : +el.value; drawStd(el.value !== ""); },
+  rptPilih(el) { RPTSEL = { rid: el.value, i: null }; fillRptBar(false); },
+  rptRefresh() { RPTSEL = {}; fillRptBar(!kandunganAda()); },
+  async rptFile(el) {
+    const f = el.files[0]; el.value = ""; if (!f) return;
+    const sub = $("#rpSub").value.trim(), thn = $("#rpThn").value, msg = t => { $("#rpMsg").innerHTML = `<span class="spin" style="border-color:#ccc;border-top-color:#047857"></span> ${esc(t)}`; };
+    if (!sub) return toast("Isi mata pelajaran dahulu.", true);
+    try { const baris = await bacaRptFail(f, sub, thn, msg); $("#rpMsg").textContent = ""; rptEditor({ subjek: sub, tahun: thn, nama_fail: f.name, baris }); }
+    catch (e) { $("#rpMsg").innerHTML = `<span style="color:var(--red)">❌ ${esc(e.message)}</span>`; }
+  }
+});
 
 document.addEventListener("click", async e => {
   const b = e.target.closest("[data-act]"); if (!b) return;
